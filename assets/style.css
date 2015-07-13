@@ -1,0 +1,256 @@
+#dashboard_right_now .t-worthy-relevant a {
+  color: #c00;
+}
+
+#worthy_pixel {
+  line-height: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+}
+
+#icon-wp_worthy {
+  background: transparent url("admin_icon_big.png") no-repeat;
+}
+
+.worthy-publish .value {
+  float: right;
+  padding-left: 10px;
+}
+
+.worthy-relevant {
+  font-weight: bold;
+}
+
+.worthy-marker,
+.worthy-neutral.worthy-status {
+  font-weight: bold;
+  color: #0c0;
+}
+
+.worthy-nomarker {
+  color: #c00;
+}
+
+.wp-worthy-status ul {
+  padding-left: 20px;
+}
+
+.wp-worthy-status ul > li {
+  list-style: square;
+}
+
+.worthy-notice {
+  font-style: italic;
+  color: #00c;
+}
+
+.nav-tab-right {
+  float: right;
+  margin-top: -1px;
+}
+
+.worthy-form {
+  width: 340px;
+}
+
+.worthy-signup {
+  float: left;
+}
+
+#worthy-feedback {
+  width: 500px;
+}
+
+.worthy-signup + div {
+  padding-left: 370px;
+  max-width: 500px;
+}
+
+.worthy-form p {
+  min-height: 28px;
+  line-height: 24px;
+  vertical-align: top;
+  clear: both;
+}
+
+.worthy-form p label {
+  display: inline-block;
+  width: 100px;
+}
+
+.worthy-form p input + label {
+  width: auto;
+  max-width: 315px;
+}
+
+.worthy-form p input[type=text],
+.worthy-form p input[type=password],
+.worthy-form p select,
+.worthy-form p textarea {
+  display: inline-block;
+  margin-bottom: 10px;
+  width: 230px;
+  float: right;
+}
+
+#worthy-feedback p input[type=text],
+#worthy-feedback p input[type=password],
+#worthy-feedback p select,
+#worthy-feedback p textarea {
+  width: 390px;
+}
+
+#worthy-feedback p textarea {
+  height: 200px;
+}
+
+.worthy-form button {
+  float: right;
+}
+
+.worthy-premium {
+  background: #911;
+  color: #fff;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+.worthy-premium:focus,
+.worthy-premium:active {
+  color: #fff;
+}
+
+.worthy-premium.nav-tab-active {
+  background: #b11;
+  color: #fff;
+  border-bottom: 1px solid #b11;
+}
+
+.worthy-premium:hover {
+  background: #b11;
+  color: #fff;
+}
+
+.worthy-premium.nav-tab-active:hover {
+  border-bottom: 1px solid #b11;
+}
+
+div.worthy-menu-half {
+  width: 47%;
+  float: left;
+  padding: 0 10px;
+}
+
+div.worthy-menu-half p {
+  width: 68%;
+  min-width: 380px;
+}
+
+div.worthy-menu-half + div.worthy-menu-half {
+  float: right;
+}
+
+@keyframes blink {
+  0% { color: #000; }
+  50% { color: #fff; }
+}
+
+input[type=number] {
+  padding-right: 0px;
+}
+
+.worthy-status-0 {
+  color: #c00;
+}
+
+.worthy-status-1 {
+  color: #c00;
+  font-weight: bold;
+}
+
+.worthy-status-2 {
+  color: #cc0;
+  font-weight: bold;
+}
+
+.worthy-status-3 {
+  color: #0c0;
+  font-weight: bold;
+}
+
+table.posts .worthy-status-1 {
+  font-weight: normal;
+}
+
+.worthy-label {
+  display: inline-block;
+  min-width: 250px;
+  margin-right: 10px;
+}
+
+.worthy-price {
+  display: inline-block;
+  width: 60px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.column-private,
+.column-public,
+.column-marker {
+  word-wrap: normal;
+  width: 270px;
+}
+
+.column-marker abbr {
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+}
+
+.worthy-report-preview {
+  padding-left: 25px;
+}
+
+.worthy-report-preview input {
+  margin-left: -25px;
+}
+
+.worthy-report-preview span {
+  word-wrap: normal;
+  white-space: nowrap;
+}
+
+form.worthy_inline {
+  display: inline;
+}
+
+form.worthy_inline button {
+  cursor: pointer;
+  color: #0073AA;
+  text-decoration: underline;
+  border: none;
+  background: none;
+  padding: 1px 2px;
+}
+
+#worthy-giropay {
+  display: inline-block;
+  margin-left: 30px;
+  vertical-align: middle;
+}
+
+.ui-giropay_widget {
+  border-top: 1px solid #d3d3d3;
+}
+
+.worthy-exclamation {
+  float: left;
+  display: block;
+  margin: 0 10px 10px 0;
+  padding: 0 20px;
+  border: 3px solid #f00;
+  border-radius: 8px;
+  font-size: 42px;
+}
