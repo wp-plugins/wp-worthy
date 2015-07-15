@@ -160,11 +160,29 @@ input[type=number] {
   padding-right: 0px;
 }
 
+br + .worthy-warning {
+  margin-top: 5px;
+}
+
+.worthy-warning {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.worthy-warning:before {
+  content: "!";
+  margin: 0 5px 0 0;
+  padding: 0 4px;
+  border: 2px solid #c00;
+  border-radius: 2px;
+}
+
 .worthy-status-0 {
   color: #c00;
 }
 
-.worthy-status-1 {
+.worthy-status-1,
+.worthy-warning {
   color: #c00;
   font-weight: bold;
 }
@@ -253,4 +271,36 @@ form.worthy_inline button {
   border: 3px solid #f00;
   border-radius: 8px;
   font-size: 42px;
+}
+
+pre.wp-worthy-preview {
+  margin-right: 20px;
+}
+
+span.wp-worthy-inline-title,
+span.wp-worthy-inline-content {
+  display: block;
+  margin: 1px;
+  padding: 2px;
+}
+
+span.wp-worthy-inline-title:hover,
+span.wp-worthy-inline-content:hover {
+  margin: 0px;
+  border: 1px solid #999;
+}
+
+input.wp-worthy-inline-title {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+textarea.wp-worthy-inline-content {
+  width: 100%;
+  min-height: 400px;
+}
+
+ul#worthy-marker-status ul {
+  margin-bottom: 15px;
+  padding-left: 20px;
 }

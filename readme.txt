@@ -4,7 +4,7 @@ Donate link: https://wp-worthy.de/
 Tags: VG-Wort, T.O.M., METIS, Zählmarke, Zählpixel, Geld, VGW, Verwertungsgesellschaft WORT
 Requires at least: 3.7
 Tested up to: 4.2.2
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -22,14 +22,14 @@ Worthy richtet sich an Autoren, die ihre Texte online verfassen und
 regelmäßig an die VG-Wort melden oder dies in Zukunft planen.
 
 Worthy vereinfacht die Arbeit mit Zählmarken der VG-Wort indem es in der
-Grundversion eine Datenbank mit Zählmarken pflegt und diese
-Wordpress-Beiträgen zuordnet und dafür sorgt, dass diese regelkonform im
-Blog ausgegeben werden.  
+Grundversion eine Datenbank mit Zählmarken pflegt, diese Wordpress-Beiträgen
+zuordnet und so dafür sorgt, dass diese regelkonform im Blog ausgegeben
+werden.
 Diverse Werkzeuge vereinfachen die Recherche innerhalb der
 Wordpress-Beiträge und der Zählmarken.
 
 Abgerundet wird Worthy durch eine Premium-Funktion, die Dein Wordpress
-direkt mit der VG wort verbindet und wesentliche Funktionen von dort direkt
+direkt mit der VG-Wort verbindet und wesentliche Funktionen von dort direkt
 in Deinem Wordpress abbildet. Zum Beispiel ist **das Melden von Artikeln**
 kein Problem mit Worthy Premium, genau wie die Recherche nach Zählmarken in
 Abhängigkeit von ihrem Status.
@@ -41,7 +41,7 @@ Abhängigkeit von ihrem Status.
 * Bulk-Funktionen für Beiträge zum Zuordnen von Zählmarken oder Ignorieren
 für Worthy
 * Integration mit Bewertung in Beitragsübersicht von Wordpress
-* Integration in Beitragseditor von Wordpress mit Zeichernzählung
+* Integration in Beitragseditor von Wordpress mit Zeichenzählung
 * Import von Zählmarken aus CSV-Datei
 * Export von Zählmarken in CSV-Datei, auch mit Beitrags-ID und -Überschrift
 * Migration von Beiträgen mit eingebetteten Zählmarken
@@ -50,7 +50,7 @@ für Worthy
 * Migration aus dem Plugin "Prosodia VGW"
 * Migration aus dem Plugin "Torben Leuschners VG-Wort"
 * Migration und Reparatur von Zählmarken die doppelt vergeben wurden
-* Vorschau der zu migrierenden Beiträgen
+* Vorschau der zu migrierenden Beiträge
 * Nachträglicher Import von privaten Zählmarken (nach Migration aus Quellen
 mit nur der öffentlichen Zählmarke)
 * Schutz vor mehr als eine Zählmarke in der Blog-Ausgabe
@@ -64,7 +64,7 @@ ausgeben)
 * Recherche nach Zählmarken und Beiträgen anhand des Zählmarken-Status
 * Anlegen von Webbereichen
 * Automatisches Erstellen von Meldungen
-* Kostenlose Test-Phase
+* Kostenlose Testphase
 
 = Migration von anderen Plugins =
 Solltest Du von einem anderen Plugin zu Worthy wechseln wollen oder bisher
@@ -78,17 +78,16 @@ werden folgende Migrationspfade unterstützt:
 * Zählmarken aus dem Plugin "Prosodia VGW"
 * Zählmarken aus dem Plugin "Torben Leuschners' VG-Wort"
 
-Worthy prüft automatisch auf Beiträge die migriert werden können sobald Du
-die Übersicht von Worthy aufrufst und wird Dich entsprechend darauf
-hinweisen.
+Sobald du die Übersicht von Worthy aufrufst, prüft Worthy automatisch auf zu
+migrierende Beiträge und weist dich entsprechend darauf hin.
 
 Wenn Du eine andere Einbettung der Zählmarken vorgenommen hast oder ein
 anderes, hier nicht gelistetes Tool verwendet hast, sprich unseren Support
 an!
 
 Mit dem Migrations-Tool kannst Du entweder alle Beiträge, nur die eines
-bestimmten Plugins bzw. eingebettete Zählmarken oder bequem über eine
-Vorschau-Ansicht migrieren.  
+bestimmten Plugins bzw. eingebettete Zählmarken bequem über eine
+Vorschau-Ansicht migrieren.
 Wenn Du alle oder alle Beiträge einer bestimmten Methode migrierst, werden
 auch die eventuell vorhandenen freien Zählmarken mit migriert, Du musst also
 nicht alles nochmal neu importieren. Anders herum kann Worthy die privaten
@@ -96,8 +95,8 @@ Zählmarken nicht erraten, sollten diese (z.B. bei eingebetten Zählmarken)
 nicht in Wordpress vorhanden sein. Hierzu kannst Du eventuell vorhandene
 CSV-Listen noch einmal importieren und so die privaten Zählmarken ergänzen.  
 Nutzer von Worthy Premium erhalten etwaige fehlende private Zählmarken auch
-über die Synchronisation der Zählmarken. Die wird nach der Registrierung für
-Worthy Premium automatisch ausgeführt.
+über die Synchronisation der Zählmarken. Diese wird nach der Registrierung
+für Worthy Premium automatisch ausgeführt.
 
 
 Worthy ist ein von der VG-Wort unabhängiges Plugin für Wordpress und wird
@@ -108,7 +107,7 @@ Worthy lässt sich wie jedes normale Plugin aus dem Wordpress Plugin
 Repository installieren.
 
 Alternativ kannst Du auch von [der Worthy-Webseite](https://wp-worthy.de/)
-die aktuellste Version herunterladen und als ZIP-Datei in Wordpress
+die neuste Version herunterladen und als ZIP-Datei in Wordpress
 installieren:
 
 1. Lade das Plugin als ZIP-Datei von [der Worthy-Webseite](https://wp-worthy.de/)
@@ -137,6 +136,15 @@ dass Worthy äußerst bereit für den Einsatz bei anderen Autoren ist.
 Um Worthy noch besser zu machen, freuen wir uns über Dein Feedback. Dieses
 Changelog soll den Werdegang von Worthy abbilden, auch wenn aktuell das
 meiste bereits "im Verborgenen" geschehen ist.
+
+= 1.1 =
+* Das Plugin kann nun mehrere Autoren parallel bedienen
+* Beitrag-Tabelle weist auf zu lange Überschriften hin
+* Beiträge können in Meldungs-Vorschau bearbeitet werden
+* Worthy Premium Zählmarken-Synchronisation nicht unnötig oft
+* Beiträge die mehr als ein Zählpixel enthalten werden markiert
+* Kleinere Fehlerkorrekturen im Plugin
+* Kleinere Anpassungen an der readme.txt
 
 = 1.0 =
 * **Erstes öffentliches Release von Worthy**
@@ -182,8 +190,25 @@ Alleinstellungsmerkmal von Worthy, dass Dich die gesamte Arbeit mit T.O.M.
 über Dein Wordpress abwickeln lässt.
 
 Auch die Recherche- und Komfort-Funktionen der freien Worthy-Version sind
-recht ausgereift und erlauben Dir auch ohen Premium-Abonnement jede Menge
+recht ausgereift und erlauben Dir auch ohne Premium-Abonnement jede Menge
 Zeit und Arbeit zu sparen.
+
+= Welche Daten werden wohin übermittelt? =
+Worthy in der kostenlosen Version übermittelt keinerlei Daten an irgendwen,
+für Premium ist es indes notwendig, dass hier und da Daten übermittelt
+werden. Diese Daten werden im wesentlichen zwischen Deinem Wordpress-Blog,
+dem Worthy Premium Webservice und T.O.M. von der VG-Wort ausgetauscht.
+Bei der Bestellung von Worthy Premium kommen noch die Zahlungsdienstleister
+"Giropay" und "Paypal" zum Zuge. Von "Giropay" wird auch das
+Bankleitzahlen-Widget direkt in Wordpress eingebunden - aber nur wenn es
+wirklich benötigt wird.
+
+Sämtliche Daten werden natürlich SSL/TLS-verschlüsselt übermittelt, sodass
+nach aktuellem Standard keine Unbeteiligten Zugriff auf Deine Daten erhalten
+können.
+
+Alle Datails zum Umgang mit Deinen Daten findest Du in der
+[Datenschutzerklärung zu Worthy Premium](https://wp-worthy.de/api/privacy.de.html)
 
 = Warum kostet Worthy Premium Geld? =
 Zunächst: An diesem Projekt sind Autoren und Software-Entwickler beteiligt.
@@ -209,9 +234,9 @@ auf Herz und Nieren zu testen. Probiere es einfach aus und dann lasse Dein
 Bauchgefühl darüber entscheiden, ob Worth Premium nützlich für Dich ist.
 
 = Ich habe ein Problem mit Worthy =
-Das sollte nicht sein! Worthy ist dazu da um Dir das Leben zu erleichtern
+Das sollte nicht sein! Worthy ist dazu da, um Dir das Leben zu erleichtern
 und nicht den Tag zu vermiesen. Trotzdem kann es natürlich mal passieren,
-dass etwas nicht so funktioniert wie es sollte.
+dass etwas nicht so funktioniert, wie es sollte.
 
 Lass es uns einfach im Support-Forum wissen, wir versuchen uns so schnell
 wie möglich darum zu kümmern.

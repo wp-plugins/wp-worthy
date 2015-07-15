@@ -72,6 +72,7 @@
         'public' => __ ('Public Marker', 'wp-worthy'),
         'private' => __ ('Private Marker', 'wp-worthy'),
         'url' => __ ('URL', 'wp-worthy'),
+        'author' => __ ('Author', 'wp-worthy'),
         'status' => __ ('Status', 'wp-worthy'),
         'postid' => __ ('Post', 'wp-worthy'),
         'postlen' => __ ('Relevant Characters', 'wp-worthy'),
@@ -106,15 +107,16 @@
      **/
     public function get_sortable_columns () {
       $columns = array (
-        'public' => array ('public', true),
-        'private' => array ('private', true),
-        'url' => array ('url', true),
-        'postid' => array ('postid', true),
+        'public' => 'public',
+        'private' => 'private',
+        'url' => 'url',
+        'author' => 'author',
+        'postid' => 'postid',
         'postlen' => 'postlen',
       );
       
       if (defined ('WORTHY_PREMIUM') && WORTHY_PREMIUM)
-        $columns ['status'] = array ('status', true);
+        $columns ['status'] = 'status';
       
       return $columns;
     }
@@ -271,17 +273,33 @@
         return;
       
       echo
-        '<div class="alignleft actions">',
-        (defined ('WORTHY_PREMIUM') && WORTHY_PREMIUM ?
-          '<select name="worthy-filter-marker">' .
-            '<option value="-1">' . __ ('Display all marker-stati', 'wp-worthy') . '</option>' .
-            '<option value="0"' . (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '0') ? ' selected="1"' : '') . '>' . __ ('not counted or synced', 'wp-worthy') . '</option>' .
-            '<option value="1"' . (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '1') ? ' selected="1"' : '') . '>' . __ ('not qualified', 'wp-worthy') . '</option>' .
-            '<option value="2"' . (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '2') ? ' selected="1"' : '') . '>' . __ ('partial qualified', 'wp-worthy') . '</option>' .
-            '<option value="3"' . (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '3') ? ' selected="1"' : '') . '>' . __ ('qualified', 'wp-worthy') . '</option>' .
-            '<option value="4"' . (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '4') ? ' selected="1"' : '') . '>' . __ ('reported', 'wp-worthy') . '</option>' .
-          '</select>' : ''
-        ),
+        '<div class="alignleft actions">';
+      
+      if (count ($Users = $GLOBALS ['wpdb']->get_results ('SELECT m.userid, u.display_name FROM `' . $this->Parent->getTablename ('worthy_markers')  . '` m, `' . $this->Parent->getTablename ('users')  . '` u WHERE m.userid=u.ID GROUP BY userid')) > 1) {
+        $uid = (isset ($_REQUEST ['worthy-filter-author']) ? intval ($_REQUEST ['worthy-filter-author']) : -1);
+        
+        echo
+          '<select name="worthy-filter-author">',
+            '<option value="-1">', __ ('Display all authors', 'wp-worthy'), '</option>';
+        
+        foreach ($Users as $User)
+          echo '<option value="', $User->userid, '"', ($uid == $User->userid ? ' selected="1"' : ''), '>', $User->display_name, '</option>';
+        
+        echo '</select>';
+      }
+      
+      if (defined ('WORTHY_PREMIUM') && WORTHY_PREMIUM)
+        echo
+          '<select name="worthy-filter-marker">',
+            '<option value="-1">', __ ('Display all marker-stati', 'wp-worthy'), '</option>',
+            '<option value="0"', (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '0') ? ' selected="1"' : ''), '>', __ ('not counted or synced', 'wp-worthy'), '</option>',
+            '<option value="1"', (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '1') ? ' selected="1"' : ''), '>', __ ('not qualified', 'wp-worthy'), '</option>',
+            '<option value="2"', (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '2') ? ' selected="1"' : ''), '>', __ ('partial qualified', 'wp-worthy'), '</option>',
+            '<option value="3"', (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '3') ? ' selected="1"' : ''), '>', __ ('qualified', 'wp-worthy'), '</option>',
+            '<option value="4"', (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] == '4') ? ' selected="1"' : ''), '>', __ ('reported', 'wp-worthy'), '</option>',
+          '</select>';
+      
+      echo
           '<select name="worthy-filter-ignored">',
             '<option value="0"', (isset ($_REQUEST ['worthy-filter-ignored']) && ($_REQUEST ['worthy-filter-ignored'] == '0') ? ' selected="1"' : ''), '>', __ ('Display all markers', 'wp-worthy'), '</option>',
             '<option value="1"', (isset ($_REQUEST ['worthy-filter-ignored']) && ($_REQUEST ['worthy-filter-ignored'] == '1') ? ' selected="1"' : ''), '>', __ ('All Markers with posts assigned', 'wp-worthy'), '</option>',
@@ -330,6 +348,9 @@
       if (isset ($_REQUEST ['status_since']) && is_numeric ($_REQUEST ['status_since']))
         $Where .= ' AND status_date>' . intval ($_REQUEST ['status_since']);
       
+      if (isset ($_REQUEST ['worthy-filter-author']) && ($_REQUEST ['worthy-filter-author'] >= 0))
+        $Where .= ' AND userid="' . intval ($_REQUEST ['worthy-filter-author']) . '"';
+      
       if (isset ($_REQUEST ['worthy-filter-marker']) && ($_REQUEST ['worthy-filter-marker'] >= 0))
         $Where .= ' AND (status="' . intval ($_REQUEST ['worthy-filter-marker']) . '"' . ($_REQUEST ['worthy-filter-marker'] == 0 ? ' OR status IS NULL' : '') . ')';
       
@@ -349,7 +370,17 @@
       if (isset ($_REQUEST ['s']) && (strlen (trim ($_REQUEST ['s'])) > 0))
         $Where .= $wpdb->prepare (' AND (private LIKE "%%%%%s%%%%" OR public LIKE "%%%%%s%%%%")', trim ($_REQUEST ['s']), trim ($_REQUEST ['s']));
       
-      $this->items = $wpdb->get_results (sprintf ('SELECT SQL_CALC_FOUND_ROWS m.*, p.post_title, CONVERT(pm.meta_value, UNSIGNED INTEGER) AS postlen FROM `' . $this->Parent->getTablename ('worthy_markers')  . '` m LEFT JOIN `' . $this->Parent->getTablename ('posts')  . '` p ON (m.postid=p.ID) LEFT JOIN `' . $this->Parent->getTablename ('postmeta') . '` pm ON (m.postid=pm.post_id AND pm.meta_key="worthy_counter")' . $Where . ' ORDER BY %s %s LIMIT %d,%d', $sort_field, $sort_order, ($page - 1) * $per_page, $per_page));
+      $this->items = $wpdb->get_results (sprintf (
+        'SELECT SQL_CALC_FOUND_ROWS m.*, p.post_title, CONVERT(pm.meta_value, UNSIGNED INTEGER) AS postlen, u.display_name AS author ' .
+        'FROM `' . $this->Parent->getTablename ('worthy_markers')  . '` m ' .
+        'LEFT JOIN `' . $this->Parent->getTablename ('posts')  . '` p ON (m.postid=p.ID) ' .
+        'LEFT JOIN `' . $this->Parent->getTablename ('postmeta') . '` pm ON (m.postid=pm.post_id AND pm.meta_key="worthy_counter")' .
+        'LEFT JOIN `' . $this->Parent->getTablename ('users') . '` u ON (m.userid=u.ID)' .
+        $Where . ' ' .
+        'ORDER BY %s %s ' .
+        'LIMIT %d,%d',
+        $sort_field, $sort_order, ($page - 1) * $per_page, $per_page
+      ));
       
       $this->set_pagination_args (array (
         'total_items' => $wpdb->get_var ('SELECT FOUND_ROWS()'),

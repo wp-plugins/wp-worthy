@@ -16,6 +16,18 @@ msgstr "Übersicht"
 msgid "Markers"
 msgstr "VG-Wort Zählmarken"
 
+msgid "Markers for %s"
+msgstr "Zählmarken von %s"
+
+msgid "Markers for an unknown user"
+msgstr "Zählmarken eines unbekannten Benutzers"
+
+msgid "Not personalized markers"
+msgstr "Zählmarken die niemandem gehören"
+
+msgid "Show only these"
+msgstr "Zeige mir nur diese"
+
 msgid "<strong>%d unused markers</strong> on database"
 msgstr "<strong>%d ungenutzte</strong> VG-Wort Zählmarken in der Datenbank"
 
@@ -48,6 +60,9 @@ msgstr "haben keinen Zeichen-Index für Worthy zugeordnet"
 
 msgid "Generate length-index"
 msgstr "Zeichen-Index erstellen"
+
+msgid "were found on frontend with at least two markers assigned!"
+msgstr "verwenden mindestens zwei Zählmarken, wovon nur die Worthy-Zählmarke ausgegeben wurde!"
 
 msgid "Migration"
 msgstr "Migration"
@@ -136,6 +151,9 @@ msgstr "Direkt melden (ohne Vorschau)"
 msgid "Create webareas"
 msgstr "Webbereiche erstellen"
 
+msgid "Display all authors"
+msgstr "Alle Autoren anzeigen"
+
 msgid "Display all marker-stati"
 msgstr "Alle Zählmarken-Stati anzeigen"
 
@@ -151,6 +169,15 @@ msgstr "Zählmarken mit Beiträgen die nicht ignoriert wurden"
 msgid "Markers with posts assigned that are ignored"
 msgstr "Zählmarken mit Beiträgen die ignoriert wurden"
 
+msgid "Title is too long"
+msgstr "Titel ist zu lang"
+
+msgid "User-ID conflict"
+msgstr "Authoren-Konflikt"
+
+msgid "The author of the post does not match the owner of the marker"
+msgstr "Der Autor des Beitrags passt nicht zum Inhaber der Zählmarke"
+
 ###
 # Posts section
 
@@ -160,8 +187,14 @@ msgstr "Keine freien VG-Wort Zählmarken in der Datenbank vorhanden"
 msgid "There are no more markers available!"
 msgstr "Es sind keine VG-Wort Zählmarken mehr frei!"
 
-msgid "There are no markers left on the Worthy Database. It is not possible to assign a new marker to a post or page until you import a new set of markers"
-msgstr "In der Datenbank von Worthy sind keine freien VG-Wort Zählmarken mehr vorhanden. Solange Du keine neue CSV-Datei mit VG-Wort Zählmarken in die Datenbank lädst, kann kein Beitrag und keine Seite einen neuen VG-Wort Zählmarken mehr erhalten."
+msgid "There are no markers left on the Worthy Database."
+msgstr "In der Datenbank von Worthy sind keine freien VG-Wort Zählmarken mehr vorhanden."
+
+msgid "It is not possible to assign a new marker to a post or page until you import a new set of markers from a csv file."
+msgstr "Solange Du keine neue CSV-Datei mit VG-Wort Zählmarken in die Datenbank lädst, kann kein Beitrag und keine Seite einen neuen VG-Wort Zählmarken mehr erhalten."
+
+msgid "It is not possible to assign a new marker to a post or page until you import a new set of markers via Worthy Premium or from a csv file."
+msgstr "Solange Du keine neuen VG-Wort Zählmarken über Worthy Premium oder per CSV-Import in die Datenbank lädst, können keine Beiträge oder Seiten neue VG-Wort Zählmarken mehr erhalten."
 
 msgid "Low amount of unused markers left"
 msgstr "Nur noch wenig freie VG-Wort Zählmarken verfügbar"
@@ -169,8 +202,11 @@ msgstr "Nur noch wenig freie VG-Wort Zählmarken verfügbar"
 msgid "Worthy is running low on markers!"
 msgstr "Es sind nur noch wenig VG-Wort Zählmarken in der WP-Worthy-Datenbank vorhanden!"
 
-msgid "If you are going to assign more than %d markers to posts without a marker assigned, some of them will fail until you import new markers into the Worthy database."
+msgid "If you are going to assign more than %d markers to posts without a marker assigned, some of them will fail until you import new markers from a csv file into the Worthy database."
 msgstr "In der Worthy-Datenbank sind nur noch %d VG-Wort Zählmarken vorhanden. Solange Du nicht eine neue CSV-Datei mit VG-Wort Zählmarken in Worthy importierst, kann es vorkommen dass einigen Beiträgen und Seiten kein VG-Wort Zählmarken zugeordnet werden kann."
+
+msgid "If you are going to assign more than %d markers to posts without a marker assigned, some of them will fail until you import new markers via Worthy Premium or from a csv file into the Worthy database."
+msgstr "In der Worthy-Datenbank sind nur noch %d VG-Wort Zählmarken vorhanden. Solange Du nicht neue Zählmarken über Worthy Premium oder per CSV-Import importierst, kann es vorkommen dass einigen Beiträgen und Seiten kein VG-Wort Zählmarken zugeordnet werden kann."
 
 msgid "Marker"
 msgstr "Zählmarken"
@@ -312,6 +348,12 @@ msgstr "Exportiere Zählmarken die bereits verwendet werden"
 msgid "Export title of post if assigned"
 msgstr "Titel des Beitrags exportieren (sofern zugewiesen)"
 
+msgid "Export markers from all authors"
+msgstr "Zählmarken von allen Autoren exportieren"
+
+msgid "Export markers from specific authors"
+msgstr "Autoren für Export auswählen"
+
 msgid "Export markers that were not counted yet"
 msgstr "Exportiere Zählmarken die nocht nicht gezählt wurden"
 
@@ -417,6 +459,9 @@ msgstr "Zählmarken suchen"
 
 ###
 
+msgid "No markers available"
+msgstr "Keine Zählmarken verfügbar"
+
 msgid "Assign VG-Wort marker"
 msgstr "VG-Wort Zählmarke"
 
@@ -434,6 +479,9 @@ msgstr "%d Beiträge für VG-Wort relevant"
 
 msgid "Ignored"
 msgstr "Ignoriert"
+
+msgid "%d unused general markers"
+msgstr "%d unbenutzte allgemeine VG-Wort Zählmarken"
 
 msgid "%d unused markers"
 msgstr "%d unbenutzte VG-Wort Zählmarken"
@@ -501,6 +549,15 @@ msgstr "Interner Fehler: Konnte keinen SOAP-Client fürs erste Setup erstellen"
 msgid "Could not retrive the requested post %d"
 msgstr "Konnte den Wordpress-Beitrag %d nicht laden"
 
+msgid "Author"
+msgstr "Autor"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Length"
+msgstr "Länge"
+
 msgid "Service-Error: Caught an unexpected exception. Strange!"
 msgstr "Dienst-Fehler: Wir haben eine unerwartete Fehlermeldung erhalten. Merkwürdig!"
 
@@ -546,6 +603,9 @@ msgstr "Anzahl importierter Zählmarken"
 msgid "Number of markers synced"
 msgstr "Anzahl Zählmarken-Updates"
 
+msgid "%d total"
+msgstr "%d gesamt"
+
 msgid "Last check of subscribtion-status"
 msgstr "Letzte Überprüfung des Abonnements"
 
@@ -555,6 +615,8 @@ msgstr "Letzte Synchronisation der Zählmarken"
 msgid "Synchronize now"
 msgstr "Jetzt synchronisieren"
 
+msgid "Not yet"
+msgstr "Bisher noch nicht"
 
 ###
 # Worthy Premium Unregistered

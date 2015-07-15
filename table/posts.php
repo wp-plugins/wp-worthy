@@ -69,10 +69,10 @@
     public static function setupColumns () {
       return array (
         'cb' => '<input type="checkbox" />',
-        'title' => _x ('Title', 'column name'),
+        'title' => __ ('Title'),
         'author' => __ ('Author'),
-        'categories' => get_taxonomy ('category')->labels->name,
-        'post_tag' => get_taxonomy ('post_tag')->labels->name,
+        'categories' => __ (get_taxonomy ('category')->labels->name),
+        'post_tag' => __ (get_taxonomy ('post_tag')->labels->name),
         'date' => __ ('Date'),
         'marker' => __ ('Marker', 'wp-worthy'),
         'size' => __ ('Total Size', 'wp-worthy'),
@@ -104,7 +104,8 @@
     public function get_sortable_columns () {
       return array (
         'title' => 'post_title',
-        'date' => array ('Date', true),
+        'author' => 'author',
+        'date' => 'post_date',
         'marker' => 'private',
         'size' => 'size',
         'characters' => 'characters',
@@ -158,27 +159,6 @@
         return $this->Parent->wpLinkPost ($item);
       
       return '<strong>' . $this->Parent->wpLinkPost ($item) . '</strong>';
-    }
-    // }}}
-    
-    // {{{ column_author
-    /**
-     * Output name of author for a given post
-     * 
-     * @param object $item
-     * 
-     * @access public
-     * @return string
-     **/
-    public function column_author ($item) {
-      static $authors = array ();
-      
-      if (isset ($authors [$item->post_author]))
-        return $authors [$item->post_author];
-      
-      global $wpdb;
-      
-      return $authors [$item->post_author] = $wpdb->get_var ($wpdb->prepare ('SELECT display_name FROM `' . $this->Parent->getTablename ('users') . '` WHERE ID=%d', $item->post_author));
     }
     // }}}
     
@@ -342,9 +322,12 @@
       
       $isRelevant = (($Length = $this->Parent->getPostLength ($item)) >= 1800);
       $hasMarker = (strlen ($item->public) > 0);
+      $Links = '';
       
       if ($isRelevant == $hasMarker) {
-        if (defined ('WORTHY_PREMIUM') && WORTHY_PREMIUM) {
+        $Status = '<span class="' . ($isRelevant ? 'worthy-relevant worthy-marker' : 'worthy-neutral') . '">OK</span>';
+        
+        if (defined ('WORTHY_PREMIUM') && WORTHY_PREMIUM && $isRelevant) {
           static $Map = array (
             0 => '', 
             1 => 'not qualified',
@@ -353,29 +336,33 @@
             4 => 'reported',
           );
           
-          $status =
-            '<br /><span class="worthy-status-' . intval ($item->status) . '">' . __ ($Map [intval ($item->status)], 'wp-worthy') . '</span>' .
-            '<ul>' .
-              ($item->status > 3 ? '' :
-              '<li><a href="#" onclick="worthy_bulk_single(\'worthy_premium_create_webareas\', \'' . $item->ID . '\');">' . __ ('Create webarea', 'wp-worthy') . '</a></li>') .
-              (($item->status == 3) || (($item->status == 2) && ($Length > 9999)) ?
-                '<li><a href="#" onclick="worthy_bulk_single(\'worthy_premium_report_posts_preview\', \'' . $item->ID . '\');">' . __ ('Preview report for VG-Wort', 'wp-worthy') . '</a></li>' . 
-                '<li><a href="#" onclick="worthy_bulk_single(\'worthy_premium_report_posts\', \'' . $item->ID . '\');">' . __ ('Report directly to VG-Wort', 'wp-worthy') . '</a></li>' : ''
-              ) .
-            '</ul>';
-        } else
-          $status = '';
-        
-        return
-          '<span class="' . ($isRelevant ? 'worthy-relevant worthy-marker' : 'worthy-neutral') . ' worthy-status">OK</span>' .
-          ($isRelevant ? $status : '<br />' . __ ('Not relevant', 'wp-worthy'));
-      } elseif (!$isRelevant)
-        return '<span class="worthy-neutral worthy-status">OK</span><br /><span class="worthy-notice">' . __ ('Marker assigned without need', 'wp-worthy') . '</span>';
+          $Status .=
+            '<br /><span class="worthy-status-' . intval ($item->status) . '">' . __ ($Map [intval ($item->status)], 'wp-worthy') . '</span>';
+          
+          $Links =
+            ($item->status > 3 ? '' :
+            '<li><a href="#" onclick="worthy_bulk_single(\'worthy_premium_create_webareas\', \'' . $item->ID . '\');">' . __ ('Create webarea', 'wp-worthy') . '</a></li>') .
+            (($item->status == 3) || (($item->status == 2) && ($Length > 9999)) ?
+              '<li><a href="#" onclick="worthy_bulk_single(\'worthy_premium_report_posts_preview\', \'' . $item->ID . '\');">' . __ ('Preview report for VG-Wort', 'wp-worthy') . '</a></li>' . 
+              (strlen ($item->post_title) > 100 ? '' :
+              '<li><a href="#" onclick="worthy_bulk_single(\'worthy_premium_report_posts\', \'' . $item->ID . '\');">' . __ ('Report directly to VG-Wort', 'wp-worthy') . '</a></li>') : ''
+            );
+        }
+      } elseif ($isRelevant) {
+        $Status = '<span class="worthy-relevant worthy-nomarker worthy-warning">' . __ ('Needs marker', 'wp-worthy') . '</span>';
+        $Links = '<li><a href="#" onclick="worthy_bulk_single(\'worthy_bulk_assign\', \'' . $item->ID . '\');">' . __ ('Assign marker', 'wp-worthy') . '</a></li>';
+      } else
+        $Status = '<span class="worthy-neutral">OK</span><br /><span class="worthy-notice">' . __ ('Marker assigned without need', 'wp-worthy') . '</span>';
       
-      $Links = '<li><a href="#" onclick="worthy_bulk_single(\'worthy_bulk_assign\', \'' . $item->ID . '\');">' . __ ('Assign marker', 'wp-worthy') . '</a></li>';
+      if ($isRelevant && (strlen ($item->post_title) > 100))
+        $Status .= '<br /><span class="worthy-warning">' . __ ('Title is too long', 'wp-worthy') . '</span>';
+      
+      // Sanity-check user-ids
+      if ($hasMarker && ($item->userid != $item->post_author))
+        $Status .= '<br /><span class="worthy-warning" title="' . __ ('The author of the post does not match the owner of the marker', 'wp-worthy') . '">' . __ ('User-ID conflict', 'wp-worthy') . '</span>';
       
       return
-        '<span class="worthy-relevant worthy-nomarker worthy-status">' . __ ('Needs marker', 'wp-worthy') . '</span>' .
+        $Status .
         (strlen ($Links) > 0 ? '<ul>' . $Links . '</ul>' : '');
     }
     // }}}
@@ -426,7 +413,7 @@
       $sort_field = 'ID';
       $sort_order = 'DESC';
       
-      if (isset ($_REQUEST ['orderby']) && in_array ($_REQUEST ['orderby'], array_keys ($this->get_sortable_columns ())))
+      if (isset ($_REQUEST ['orderby']) && in_array ($_REQUEST ['orderby'], $this->get_sortable_columns ()))
         $sort_field = $_REQUEST ['orderby'];
       
       if ($sort_field == 'size')
@@ -443,6 +430,9 @@
       
       // Handle filters
       $Where = '';
+      
+      if (isset ($_REQUEST ['worthy-filter-author']) && ($_REQUEST ['worthy-filter-author'] >= 0))
+        $Where .= ' AND post_author="' . intval ($_REQUEST ['worthy-filter-author']) . '"';
       
       if (isset ($_REQUEST ['m']) && ($_REQUEST ['m'] != 0)) {
         $Year = intval (substr ($_REQUEST ['m'], 0, 4));
@@ -493,10 +483,17 @@
       }
       
       if (isset ($_REQUEST ['s']) && (strlen (trim ($_REQUEST ['s'])) > 0))
-        $Where .= $wpdb->prepare (' AND (private LIKE "%%%%%s%%%%" OR public LIKE "%%%%%s%%%%")', trim ($_REQUEST ['s'], trim ($_REQUEST ['s'])));
+        $Where .= $wpdb->prepare (' AND (private LIKE "%%%%%s%%%%" OR public LIKE "%%%%%s%%%%")', trim ($_REQUEST ['s']), trim ($_REQUEST ['s']));
       
       // Do the query
-      $this->items = $wpdb->get_results (sprintf ('SELECT SQL_CALC_FOUND_ROWS p.*, c.public, c.private, c.status, c.server FROM `' . $this->Parent->getTablename ('posts')  . '` p LEFT JOIN `' . $this->Parent->getTablename ('worthy_markers') . '` c ON (p.ID = c.postid) LEFT JOIN `' . $this->Parent->getTablename ('postmeta') . '` i ON (p.ID=i.post_id AND i.meta_key="worthy_ignore")' . $From . ' WHERE post_type IN ("post", "page") AND post_status="publish"' . $Where . ' AND ((i.meta_value IS NULL) OR NOT (i.meta_value="1")) ORDER BY %s %s LIMIT %d,%d', $sort_field, $sort_order, ($page - 1) * $per_page, $per_page));
+      $this->items = $wpdb->get_results (sprintf (
+        'SELECT SQL_CALC_FOUND_ROWS p.*, c.public, c.private, c.status, c.server, c.userid, u.display_name AS author ' .
+        'FROM `' . $this->Parent->getTablename ('posts')  . '` p ' .
+        'LEFT JOIN `' . $this->Parent->getTablename ('worthy_markers') . '` c ON (p.ID = c.postid) ' .
+        'LEFT JOIN `' . $this->Parent->getTablename ('users') . '` u ON (p.post_author=u.ID)' .
+        'LEFT JOIN `' . $this->Parent->getTablename ('postmeta') . '` i ON (p.ID=i.post_id AND i.meta_key="worthy_ignore")' . $From . ' ' .
+        'WHERE post_type IN ("post", "page") AND post_status="publish"' . $Where . ' AND ((i.meta_value IS NULL) OR NOT (i.meta_value="1")) ' .
+        'ORDER BY %s %s LIMIT %d,%d', $sort_field, $sort_order, ($page - 1) * $per_page, $per_page));
       
       // Setup this table
       $this->set_pagination_args (array (
@@ -519,6 +516,19 @@
         return;
       
       echo '<div class="alignleft actions">';
+      
+      if (count ($Users = $GLOBALS ['wpdb']->get_results ('SELECT m.userid, u.display_name FROM `' . $this->Parent->getTablename ('worthy_markers')  . '` m, `' . $this->Parent->getTablename ('users')  . '` u WHERE m.userid=u.ID GROUP BY userid')) > 1) {
+        $uid = (isset ($_REQUEST ['worthy-filter-author']) ? intval ($_REQUEST ['worthy-filter-author']) : -1);
+        
+        echo
+          '<select name="worthy-filter-author">', 
+            '<option value="-1">', __ ('Display all authors', 'wp-worthy'), '</option>';
+        
+        foreach ($Users as $User)
+          echo '<option value="', $User->userid, '"', ($uid == $User->userid ? ' selected="1"' : ''), '>', $User->display_name, '</option>';
+        
+        echo '</select>';
+      }
       
       // Display month-filter
       $this->months_dropdown ('post');

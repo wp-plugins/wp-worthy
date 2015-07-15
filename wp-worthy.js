@@ -94,7 +94,7 @@
       $('#worthy-giropay-bic').giropay_widget({'return':'bic','kind':1});
     
     $('div.worthy-signup form').submit (function () {
-      if (!$(this).find ('input#worthy-accept-tac').prop ('checked')) {
+      if (!$(this).find ('input#wp-worthy-accept-tac').prop ('checked')) {
         alert (wpWorthyLang.accept_tac);
         
         return false;
@@ -114,7 +114,7 @@
         return false;
       }
       
-      if (!$(this).find ('input#worthy-accept-tac').prop ('checked')) {
+      if (!$(this).find ('input#wp-worthy-accept-tac').prop ('checked')) {
         alert (wpWorthyLang.accept_tac);
 
         return false;
@@ -125,6 +125,24 @@
         
         return false;
       }
+    });
+    
+    $('span.wp-worthy-inline-title').click (function () {
+      var textbox = document.createElement ('input');
+      textbox.setAttribute ('type', 'text');
+      textbox.setAttribute ('name', this.getAttribute ('id'));
+      textbox.setAttribute ('class', 'wp-worthy-inline-title');
+      textbox.value = this.textContent.substr (0, this.textContent.lastIndexOf ("\n"));
+      this.parentNode.replaceChild (textbox, this);
+    });
+    
+    $('span.wp-worthy-inline-content').click (function () {
+      var textbox = document.createElement ('textarea');
+      textbox.setAttribute ('name', this.getAttribute ('id'));
+      textbox.setAttribute ('class', 'wp-worthy-inline-content');
+      textbox.value = this.textContent;
+      textbox.style.height = this.clientHeight + 'px';
+      this.parentNode.replaceChild (textbox, this);
     });
   });
 }(jQuery));
