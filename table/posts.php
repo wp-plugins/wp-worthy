@@ -174,7 +174,7 @@
     public function column_categories ($item) {
       global $wpdb;
       
-      $items = $wpdb->get_results ($wpdb->prepare ('SELECT t.name FROM bw_terms t, bw_term_taxonomy tt, bw_term_relationships tr WHERE t.term_id=tt.term_id AND tt.term_taxonomy_id=tr.term_taxonomy_id AND tr.object_id=%d AND tt.taxonomy="category"', $item->ID));
+      $items = $wpdb->get_results ($wpdb->prepare ('SELECT t.name FROM `' . $this->Parent->getTablename ('terms') . '` t, `' . $this->Parent->getTablename ('term_taxonomy') . '` tt, `' . $this->Parent->getTablename ('term_relationships') . '` tr WHERE t.term_id=tt.term_id AND tt.term_taxonomy_id=tr.term_taxonomy_id AND tr.object_id=%d AND tt.taxonomy="category"', $item->ID));
       
       if (count ($items) == 0)
         return '&#8212;';
@@ -198,7 +198,7 @@
     public function column_post_tag ($item) {
       global $wpdb;
       
-      $items = $wpdb->get_results ($wpdb->prepare ('SELECT t.name FROM bw_terms t, bw_term_taxonomy tt, bw_term_relationships tr WHERE t.term_id=tt.term_id AND tt.term_taxonomy_id=tr.term_taxonomy_id AND tr.object_id=%d AND tt.taxonomy="post_tag"', $item->ID));
+      $items = $wpdb->get_results ($wpdb->prepare ('SELECT t.name FROM `' . $this->Parent->getTablename ('terms') . '` t, `' . $this->Parent->getTablename ('term_taxonomy') . '` tt, `' . $this->Parent->getTablename ('term_relationships') . '` tr WHERE t.term_id=tt.term_id AND tt.term_taxonomy_id=tr.term_taxonomy_id AND tr.object_id=%d AND tt.taxonomy="post_tag"', $item->ID));
       
       if (count ($items) == 0)
         return '&#8212;';

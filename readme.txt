@@ -4,7 +4,7 @@ Donate link: https://wp-worthy.de/
 Tags: VG-Wort, T.O.M., METIS, Zählmarke, Zählpixel, Geld, VGW, Verwertungsgesellschaft WORT
 Requires at least: 3.7
 Tested up to: 4.2.2
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -136,6 +136,10 @@ dass Worthy äußerst bereit für den Einsatz bei anderen Autoren ist.
 Um Worthy noch besser zu machen, freuen wir uns über Dein Feedback. Dieses
 Changelog soll den Werdegang von Worthy abbilden, auch wenn aktuell das
 meiste bereits "im Verborgenen" geschehen ist.
+
+= 1.1.1 =
+* Kategorien- und Schlagwörter-Spalten in Beitragsansicht waren defekt
+* Vorbereitung um einzelne Autoren mit anderen zu verknüpfen
 
 = 1.1 =
 * Das Plugin kann nun mehrere Autoren parallel bedienen

@@ -9,7 +9,7 @@
    * Plugin Name: wp-worthy
    * Plugin URI: https://wp-worthy.de/
    * Description: VG-Wort Integration for Wordpress
-   * Version: 1.1
+   * Version: 1.1.1
    * Author: tiggersWelt.net
    * Author URI: https://tiggerswelt.net/
    * License: GPLv3
@@ -345,7 +345,12 @@
      * @return int
      **/
     public function getUserID () {
-      return intval (get_current_user_id ());
+      $userID = intval (get_current_user_id ());
+      
+      if (($oID = intval (get_user_meta ($userID, 'worthy_authorid', true))) > 0)
+        $userID = $oID;
+      
+      return $userID;
     }
     // }}}
     
