@@ -51,15 +51,16 @@
 }
 
 .worthy-form {
-  width: 340px;
+  width: 600px;
 }
 
 .worthy-signup {
   float: left;
 }
 
-#worthy-feedback {
-  width: 500px;
+#wp-worthy-signup {
+  width: 340px;
+  min-width: 340px;
 }
 
 .worthy-signup + div {
@@ -76,10 +77,19 @@
 
 .worthy-form p label {
   display: inline-block;
+  width: 200px;
+}
+
+#wp-worthy-signup p label {
   width: 100px;
 }
 
 .worthy-form p input + label {
+  width: auto;
+  max-width: 560px;
+}
+
+#wp-worthy-signup p input + label {
   width: auto;
   max-width: 315px;
 }
@@ -90,15 +100,15 @@
 .worthy-form p textarea {
   display: inline-block;
   margin-bottom: 10px;
-  width: 230px;
+  width: 390px;
   float: right;
 }
 
-#worthy-feedback p input[type=text],
-#worthy-feedback p input[type=password],
-#worthy-feedback p select,
-#worthy-feedback p textarea {
-  width: 390px;
+#wp-worthy-signup p input[type=text],
+#wp-worthy-signup p input[type=password],
+#wp-worthy-signup p select,
+#wp-worthy-signup p textarea {
+  width: 230px;
 }
 
 #worthy-feedback p textarea {
@@ -136,19 +146,15 @@
   border-bottom: 1px solid #b11;
 }
 
-div.worthy-menu-half {
+div.wp-worthy-menu-half {
   width: 47%;
   float: left;
   padding: 0 10px;
 }
 
-div.worthy-menu-half p {
+div.wp-worthy-menu-half p {
   width: 68%;
   min-width: 380px;
-}
-
-div.worthy-menu-half + div.worthy-menu-half {
-  float: right;
 }
 
 @keyframes blink {
@@ -201,13 +207,13 @@ table.posts .worthy-status-1 {
   font-weight: normal;
 }
 
-.worthy-label {
+.wp-worthy-label {
   display: inline-block;
   min-width: 250px;
   margin-right: 10px;
 }
 
-.worthy-price {
+.wp-worthy-price {
   display: inline-block;
   width: 60px;
   text-align: right;
@@ -219,6 +225,10 @@ table.posts .worthy-status-1 {
 .column-marker {
   word-wrap: normal;
   width: 270px;
+}
+
+.column-status {
+  width: 150px;
 }
 
 .column-marker abbr {
@@ -253,7 +263,7 @@ form.worthy_inline button {
   padding: 1px 2px;
 }
 
-#worthy-giropay {
+#wp-worthy-payment-giropay-box {
   display: inline-block;
   margin-left: 30px;
   vertical-align: middle;
@@ -290,9 +300,18 @@ span.wp-worthy-inline-content:hover {
   border: 1px solid #999;
 }
 
+div.wp-worthy-inline-title {
+  margin-bottom: 15px;
+}
+
 input.wp-worthy-inline-title {
   width: 100%;
-  margin-bottom: 15px;
+}
+
+span.wp-worthy-inline-counter {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 0.8em;
 }
 
 textarea.wp-worthy-inline-content {
