@@ -4,7 +4,7 @@ Donate link: https://wp-worthy.de/
 Tags: VG-Wort, T.O.M., METIS, Zählmarke, Zählpixel, Geld, VGW, Verwertungsgesellschaft WORT
 Requires at least: 3.7
 Tested up to: 4.2.2
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
