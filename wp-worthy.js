@@ -6,6 +6,7 @@
     qualified : false,
     qualified_length : 1800,
     qualified_warn : 1600,
+    auto_assign : false,
     
     counter : function (text) {
       if (!this.setup) {
@@ -50,6 +51,12 @@
           
         $('#worthy_embed').prop ('disabled', !this.qualified);
       }
+      
+      if (this.qualified && this.auto_assign) {
+        $('#worthy_embed').prop ('checked', true);
+        this.auto_assign = false;
+      }
+      
       $('#worthy_embed_label').css ('font-weight', this.qualified && !$('#worthy_embed').prop ('checked') ? 'bold' : 'normal');
     },
     
@@ -73,25 +80,27 @@
   });
   
   $(document).ready (function () {
-    $('#worthy-shop-goods input[type=radio]').change (function () {
+    worthy.auto_assign = ($('#worthy_embed').attr ('data-wp-worthy-auto') == 1);
+    
+    $('#wp-worthy-shop-goods input[type=radio]').change (function () {
       var total = 0;
       var total_tax = 0;
       
-      $('#worthy-shop-goods input[type=radio]').each (function () {
+      $('#wp-worthy-shop-goods input[type=radio]').each (function () {
         if (!this.checked || (this.value == 'none'))
           return;
         
         total += parseFloat ($(this).attr ('data-value'));
         total_tax += parseFloat ($(this).attr ('data-tax'));
       });
-      $('#worthy-shop-price').html (total.toFixed (2).replace ('.', ','));
-      $('#worthy-shop-tax').html (total_tax.toFixed (2).replace ('.', ','));
+      $('#wp-worthy-shop-price').html (total.toFixed (2).replace ('.', ','));
+      $('#wp-worthy-shop-tax').html (total_tax.toFixed (2).replace ('.', ','));
     });
     
-    $('#worthy-shop-goods input[type=radio][checked]').change ();
+    $('#wp-worthy-shop-goods input[type=radio][checked]').change ();
     
-    if ($('#worthy-giropay-bic').length > 0)
-      $('#worthy-giropay-bic').giropay_widget({'return':'bic','kind':1});
+    if ($('#wp-worthy-payment-giropay-bic').length > 0)
+      $('#wp-worthy-payment-giropay-bic').giropay_widget({'return':'bic','kind':1});
     
     $('div.worthy-signup form').submit (function () {
       if (!$(this).find ('input#wp-worthy-accept-tac').prop ('checked')) {
@@ -100,10 +109,11 @@
         return false;
       }
     });
-    $('#worthy-shop').submit (function () {
+    
+    $('#wp-worthy-shop').submit (function () {
       var have_good = false;
       
-      $('#worthy-shop-goods input[type=radio]').each (function () {
+      $('#wp-worthy-shop-goods input[type=radio]').each (function () {
         if (this.checked && (this.value != 'none'))
           have_good = true;
       });
@@ -120,7 +130,7 @@
         return false;
       }
       
-      if ($(this).find ('input#worthy-payment-giropay').prop ('checked') && !$(this).find ('input#worthy-giropay-bic').prop ('value').length) {
+      if ($(this).find ('input#wp-worthy-payment-giropay').prop ('checked') && !$(this).find ('input#wp-worthy-payment-giropay-bic').prop ('value').length) {
         alert (wpWorthyLang.empty_giropay_bic);
         
         return false;
@@ -128,12 +138,27 @@
     });
     
     $('span.wp-worthy-inline-title').click (function () {
+      var box = document.createElement ('div');
+      box.setAttribute ('class', 'wp-worthy-inline-title');
+      
       var textbox = document.createElement ('input');
       textbox.setAttribute ('type', 'text');
       textbox.setAttribute ('name', this.getAttribute ('id'));
       textbox.setAttribute ('class', 'wp-worthy-inline-title');
       textbox.value = this.textContent.substr (0, this.textContent.lastIndexOf ("\n"));
-      this.parentNode.replaceChild (textbox, this);
+      box.appendChild (textbox);
+      
+      var label = document.createElement ('span');
+      label.setAttribute ('class', 'wp-worthy-inline-counter');
+      box.appendChild (label);
+      
+      textbox.onchange = function () {
+        label.textContent = '(' + this.value.length + ' ' + wpWorthyLang.characters + ')';
+      };
+      textbox.oninput = textbox.onchange;
+      
+      this.parentNode.replaceChild (box, this);
+      textbox.onchange ();
     });
     
     $('span.wp-worthy-inline-content').click (function () {
@@ -144,5 +169,12 @@
       textbox.style.height = this.clientHeight + 'px';
       this.parentNode.replaceChild (textbox, this);
     });
+    
+    $('select#wp-worthy-account-sharing').change (function () {
+      $('form.worthy-form p.wp-worthy-no-sharing').css ('display', (this.options [this.selectedIndex].value == 0 ? 'block' : 'none'));
+    }).change ();
+    
+    if ($('th#cb input[type=checkbox]').prop ('checked'))
+      $('th.check-column input[type=checkbox]').prop ('checked', true);
   });
 }(jQuery));

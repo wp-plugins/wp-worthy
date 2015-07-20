@@ -434,10 +434,37 @@ msgid "Restart migration and assign new markers to this posts"
 msgstr "Migration neu starten und diesen Beiträgen neue VG-Wort Zählmarken zuordnen"
 
 ###
-# Tools section
+# Settings section
 
-msgid "Tools"
-msgstr "Werkzeuge"
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Personal settings"
+msgstr "Persönliche Einstellungen"
+
+msgid "Automatically assign a marker to qualified posts"
+msgstr "Beiträgen automatisch ein Zählpixel zuordnen, sobald diese lang genug sind."
+
+msgid "Account-Sharing"
+msgstr "Gemeinsamer Zugang"
+
+msgid "Don't use other account"
+msgstr "Keinen anderen Zugang nutzen"
+
+msgid "With account-sharing you can link your wordpress-account to another one."
+msgstr "Mit der Funktion \"Gemeinsamer Zugang\" kannst Du den Wordpress-Zugang eines anderen Autoren nutzen."
+
+msgid "In this case worthy will behave just like the other account performs your actions, e.g. markers will be imported for this account and will be assigned to posts from this account."
+msgstr "In diesem Fall wird Worthy sich verhalten, als würden alle Aktionen über einen anderen Zugang ausgeführt. So werden importierte Zählmarken dem gewählten Zugang zugeordnet und auch von dort wieder Beiträgen zugewiesen."
+
+msgid "The same also applies to Worthy Premium of course."
+msgstr "Das alles gilt natürlich auch für die Nutzung von Worthy Premium."
+
+msgid "Default VG-Wort Server"
+msgstr "Server für Zählmarken"
+
+msgid "When using a publisher-account at VG-Wort CSV-files don't come with server-information set, in this case Worthy has to know which server you are using."
+msgstr "Wenn Du einen Verlags-Zugang bei der VG-Wort besitzt, ist der Server für die Zählmarken nicht in der CSV-Datei enthalten. Für diesen Fall muss Worthy hier explizit erfahren, welchen VG-Wort-Server es benutzen soll."
 
 ###
 # Private Marker Inquiry
@@ -756,6 +783,9 @@ msgstr "Nicht bestellen"
 msgid "Worthy Premium Subscribtion & Renewal"
 msgstr "Worthy Premium Abonnements"
 
+msgid "To be able to use Worthy Premium it is required that you are subscribed to the service. Subscribtions may be purchased on a yearly basis and are always cheaper if you use more. The subscribtion will not be renewed automatically!"
+msgstr "Du benötigst ein Abonnement um Worthy Premium nutzen zu können. Ein Abonnement kann für jeweils ein Jahr gebucht werden und wird günstiger je mehr Jahre Du bestellst. Das Abonnement verlängert sich nicht automatisch!"
+
 msgid "Worthy Premium Subscribtiopn (1 year)"
 msgstr "Worthy Premium für ein Jahr"
 
@@ -767,6 +797,9 @@ msgstr "Worthy Premium für drei Jahre"
 
 msgid "Worthy Premium Bundles"
 msgstr "Worthy Premium Bundles"
+
+msgid "Bundles extend an existing Worthy Premium Subscribtion with other functions. Bundles are purchased on a per-use-basis and may be used as long as a subscribtion exists."
+msgstr "Ein Bundle erweitert ein bestehendes Abonnement um weitere Funktionen und wird auf Basis der gewünschten Nutzungsmenge erworben. Ein Bundle kann genutzt werden, solange ein beliebiges Abonnement besteht und verfällt nicht."
 
 msgid "10 Reports Bundle"
 msgstr "10 Meldungen an VG-Wort"
@@ -782,6 +815,9 @@ msgstr "100 Meldungen an VG-Wort"
 
 msgid "250 Reports Bundle"
 msgstr "250 Meldungen an VG-Wort"
+
+msgid "You have not purchased any subscribtion yet. Upon the first subscribtion it is required that you but a subscribtion and a bundle as well in combination."
+msgstr "Du hast bisher noch kein Worthy Premium Abonnement abgeschlossen. Für das erste Abonnement ist es erforderlich, dass Du sowohl ein Abonnement wie auch ein passendes Bundle bestellst."
 
 msgid "Payment Options"
 msgstr "Zahlungsmöglichkeiten"
@@ -813,8 +849,8 @@ msgstr "Gesamtpreis"
 msgid "Tax included"
 msgstr "Enthaltene MwSt."
 
-msgid "I have read and accepted the <a href=\"%s\" id=\"worthy-terms\" target=\"_blank\">terms of service</a> and <a href=\"%s\" id=\"worthy-privacy\" target=\"_blank\">the privacy statement</a>"
-msgstr "Ich habe die <a href=\"%s\" id=\"worthy-terms\" target=\"_blank\">AGB</a> und <a href=\"%s\" id=\"worthy-privacy\" target=\"_blank\">Datenschutzbestimmungen</a> gelesen und akzeptiert"   
+msgid "I have read and accepted the <a href=\"%s\" id=\"wp-worthy-terms\" target=\"_blank\">terms of service</a> and <a href=\"%s\" id=\"wp-worthy-privacy\" target=\"_blank\">the privacy statement</a>"
+msgstr "Ich habe die <a href=\"%s\" id=\"wp-worthy-terms\" target=\"_blank\">AGB</a> und <a href=\"%s\" id=\"wp-worthy-privacy\" target=\"_blank\">Datenschutzbestimmungen</a> gelesen und akzeptiert"   
 
 msgid "* All price are with tax included"
 msgstr "* Alle Preise verstehen sich inkl. der gesetzlichen MwSt."
@@ -883,6 +919,9 @@ msgstr "Dein Worthy Premium Status wurder erfolgreich abgerufen"
 
 msgid "Show me that updates, please!"
 msgstr "Zeige mir bitte die veränderten Zählmarken!"
+
+msgid "Characters"
+msgstr "Zeichen"
 
 msgid "Characters (VG-Wort)"
 msgstr "Zeichen (VG-Wort)"

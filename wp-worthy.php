@@ -9,7 +9,7 @@
    * Plugin Name: wp-worthy
    * Plugin URI: https://wp-worthy.de/
    * Description: VG-Wort Integration for Wordpress
-   * Version: 1.1.1
+   * Version: 1.1.2
    * Author: tiggersWelt.net
    * Author URI: https://tiggerswelt.net/
    * License: GPLv3
@@ -48,7 +48,7 @@
     const ADMIN_SECTION_MARKERS = 'markers';
     const ADMIN_SECTION_POSTS = 'posts';
     const ADMIN_SECTION_CONVERT = 'convert';
-    const ADMIN_SECTION_TOOLS = 'tools';
+    const ADMIN_SECTION_SETTINGS = 'settings';
     const ADMIN_SECTION_PREMIUM = 'premium';
     
     /* Minimum length of posts to be relevant for VG-Wort */
@@ -104,6 +104,7 @@
         $this->addScript (
           'wp-worthy.js',
           array (
+            'characters' => 'Characters',
             'counter' => 'Characters (VG-Wort)',
             'accept_tac' => 'You have to accept the terms of service and privacy statement before you can continue',
             'no_goods' => 'You don\'t have selected anything to buy, pressing this button does not make sense',
@@ -134,12 +135,13 @@
       add_filter ('the_content', array ($this, 'addContentMarker'));
       
       // Register our own POST-Handlers
-      add_action ('admin_post_worthy_import_csv', array ($this, 'importMarkers'));
-      add_action ('admin_post_worthy-export-csv', array ($this, 'exportMarkers'));
-      add_action ('admin_post_worthy_migrate_preview', array ($this, 'migratePostsPreview'));
-      add_action ('admin_post_worthy_bulk_migrate', array ($this, 'migratePostsBulk'));
-      add_action ('admin_post_worthy_migrate', array ($this, 'migratePosts'));
-      add_action ('admin_post_worthy_marker_inquiry', array ($this, 'searchPrivateMarkers'));
+      add_action ('admin_post_wp-worthy-settings', array ($this, 'saveUserSettings'));
+      add_action ('admin_post_wp-worthy-import-csv', array ($this, 'importMarkers'));
+      add_action ('admin_post_wp-worthy-export-csv', array ($this, 'exportMarkers'));
+      add_action ('admin_post_wp-worthy-migrate-preview', array ($this, 'migratePostsPreview'));
+      add_action ('admin_post_wp-worthy-bulk-migrate', array ($this, 'migratePostsBulk'));
+      add_action ('admin_post_wp-worthy-migrate', array ($this, 'migratePosts'));
+      add_action ('admin_post_wp-worthy-marker-inquiry', array ($this, 'searchPrivateMarkers'));
       add_action ('admin_post_worthy_reindex', array ($this, 'reindexPosts'));
       add_action ('admin_post_worthy_bulk_assign', array ($this, 'assignPosts'));
       add_action ('admin_post_worthy_bulk_ignore', array ($this, 'ignorePosts'));
@@ -154,7 +156,7 @@
       add_action ('admin_post_worthy_premium_select_server', array ($this, 'premiumDebugSetServer'));
       add_action ('admin_post_worthy_premium_drop_session', array ($this, 'premiumDebugDropSession'));
       add_action ('admin_post_worthy_premium_drop_registration', array ($this, 'premiumDebugDropRegistration'));
-      add_action ('admin_post_worthy_premium_purchase', array ($this, 'premiumPurchase'));
+      add_action ('admin_post_wp-worthy-premium-purchase', array ($this, 'premiumPurchase'));
       add_action ('admin_post_-1', array ($this, 'redirectNoAction'));
       
       // Check for an action on posts-list
@@ -221,16 +223,16 @@
         return $content;
       
       // Check if there is a pixel assigned
-      if (!($url = $wpdb->get_var ($wpdb->prepare ('SELECT url FROM `' . $this->getTablename ('worthy_markers') . '` WHERE postid="%d" LIMIT 0,1', $post->ID))))
+      if (!($marker = $wpdb->get_row ($wpdb->prepare ('SELECT id, public, url, server FROM `' . $this->getTablename ('worthy_markers') . '` WHERE postid="%d" LIMIT 0,1', $post->ID))))
         return $content;
       
       // Check if there is a marker inside
       if (($Cleanup = $this->removeInlineMarkers ($content)) !== null) {
-        add_post_meta ($postID, 'worthy_duplicate', 1);
+        add_post_meta ($postID, 'wp-worthy-duplicate', 1);
         
         $content = $Cleanup;
       } else
-        delete_post_meta ($postID, 'worthy_duplicate');
+        delete_post_meta ($postID, 'wp-worthy-duplicate');
       
       // Find the right place for the marker
       if (($p = strpos ($content, '<span id="more-')) !== false) {
@@ -243,6 +245,20 @@
           $p = $p2 + 4;
       } else
         $p = strrpos ($content, '</p>');
+      
+      // Generate URL
+      if (($_SERVER ['HTTPS'] == 'on') && $marker->public)
+        $url = 'https://ssl-vg03.met.vgwort.de/na/' . $marker->public;
+      elseif ($marker->url)
+        $url = $marker->url;
+      elseif (!$marker->public) // WTF?!
+        return $Content;
+      elseif ($marker->server)
+        $url = 'http://' . $marker->server . '/na/' . $marker->public;
+      elseif ($uServer = get_user_meta ($post->post_author, 'wp-worthy-default-server', true))
+        $url = 'http://' . $uServer . '/na/' . $marker->public;
+      else // We should never ever get here, but...
+        $url = 'http://vg0' . (($marker->id % 9) + 1) . '.met.vgwort.de/na/' . $marker->public;
       
       return
         substr ($content, 0, $p) .
@@ -347,7 +363,7 @@
     public function getUserID () {
       $userID = intval (get_current_user_id ());
       
-      if (($oID = intval (get_user_meta ($userID, 'worthy_authorid', true))) > 0)
+      while (($oID = intval (get_user_meta ($userID, 'wp-worthy-authorid', true))) > 0)
         $userID = $oID;
       
       return $userID;
@@ -621,7 +637,7 @@
           '<span class="value">',
           ($enabled ? '' :
             '<span class="worthy-warning">' . __ ('No markers available', $this->textDomain) . '</span>'),
-            '<input type="checkbox" name="worthy_embed" id="worthy_embed" value="1"', ($c_checked ? ' checked="1"' : ''), ($c_checked || !$enabled ? ' readonly disabled' : ''), ' /> ',
+            '<input type="checkbox" name="worthy_embed" id="worthy_embed" data-wp-worthy-auto="', get_user_meta (get_current_user_id (), 'wp-worthy-auto-assign-markers', true), '" value="1"', ($c_checked ? ' checked="1"' : ''), ($c_checked || !$enabled ? ' readonly disabled' : ''), ' /> ',
             '<label for="worthy_embed" id="worthy_embed_label">', __ ('Assign VG-Wort marker', $this->textDomain), '</label><br />',
           ($isPremium ?
             '<input onclick="worthy.counter (false);" type="checkbox" name="worthy_lyric" id="worthy_lyric" value="1"' . ($l_checked ? ' checked="1"' : '') . ' /> ' .
@@ -650,7 +666,7 @@
         $this::ADMIN_SECTION_MARKERS => 'Markers',
         $this::ADMIN_SECTION_POSTS => 'Posts',
         $this::ADMIN_SECTION_CONVERT => 'Import / Export',
-        $this::ADMIN_SECTION_TOOLS => 'Tools',
+        $this::ADMIN_SECTION_SETTINGS => 'Settings',
         $this::ADMIN_SECTION_PREMIUM => array ('Premium', 1, 'worthy-premium'),
       );
       
@@ -696,8 +712,8 @@
         case $this::ADMIN_SECTION_CONVERT:
           $this->adminMenuConvert (); break;
         
-        case $this::ADMIN_SECTION_TOOLS:
-          $this->adminMenuTools (); break;
+        case $this::ADMIN_SECTION_SETTINGS:
+          $this->adminMenuSettings (); break;
         
         case $this::ADMIN_SECTION_PREMIUM:
           $this->adminMenuPremium (); break;
@@ -799,7 +815,7 @@
               '</li>',
               '<li>',
                 '<strong>', sprintf (__ ('%d posts', $this->textDomain), $notIndexed), '</strong> ', __ ('do not have a length-index for Worthy stored', $this->textDomain),
-                ($notIndexed > 0 ? ' <small>(' . $this->inlineAction ($this::ADMIN_SECTION_TOOLS, 'worthy_reindex', __ ('Generate length-index', $this->textDomain)) . ')</small>' : ''),
+                ($notIndexed > 0 ? ' <small>(' . $this->inlineAction ($this::ADMIN_SECTION_SETTINGS, 'worthy_reindex', __ ('Generate length-index', $this->textDomain)) . ')</small>' : ''),
               '</li>';
       
       if (($c = $wpdb->get_var ('SELECT count(*) FROM `' . $this->getTablename ('post_meta') . '` WHERE meta_key="worthy_duplicate"')) > 0)
@@ -886,6 +902,24 @@
           $Table->search_box (__ ('Search Marker', $this->textDomain), 'wp-worthy-search'),
           $Table->display (),
         '</form>';
+      
+      // Output Marker-Inquiry
+      echo
+        '<div class="stuffbox">',
+          '<h3>', __ ('Private Marker Inquiry', $this->textDomain), '</h3>',
+          '<div class="inside">',
+            '<form method="post" enctype="multipart/form-data" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_MARKERS), '">',
+              '<p>',
+                __ ('The private-marker-inquiry will display a list of markers managed by Worthy (including post-assignment) from a CSV-List.', $this->textDomain), '<br />',
+                __ ('You may upload a CSV-file like the one you can download from the marker-inquiry at T.O.M..', $this->textDomain),
+              '</p><p>',
+                __ ('CSV-File containing private markers', $this->textDomain), ':<br />',
+                '<input type="file" name="worthy_marker_file" accept="text/csv" />',
+              '</p>',
+              '<p><button type="submit" name="action" value="wp-worthy-marker-inquiry" class="button action">', __ ('Search private markers', $this->textDomain), '</button></p>',
+            '</form>',
+          '</div>',
+        '</div>';
     }
     // }}}
     
@@ -986,7 +1020,7 @@
       
       if ($isPremium)
         echo
-            '<div class="worthy-menu-half">',
+            '<div class="wp-worthy-menu-half">',
               '<form method="post" enctype="multipart/form-data" action="' . admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_CONVERT) . '">',
                 '<p>', __ ('By using Worthy Premium you may directly import markers without the need to download them manually from VG-Wort.', $this->textDomain), '</p>',
                 '<p>', __ ('Number of markers to import (at most 100)', $this->textDomain), '</p>',
@@ -994,14 +1028,14 @@
                 '<p><button type="submit" class="button action button-primary" name="action" value="worthy_premium_import">', __ ('Import via Worthy Premium', $this->textDomain), '</button></p>',
               '</form>',
             '</div>',
-            '<div class="worthy-menu-half">';
+            '<div class="wp-worthy-menu-half">';
       
       echo
               '<form method="post" enctype="multipart/form-data" action="' . admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_CONVERT) . '">',
                 '<p>', __ ('If you have requested a CSV-list of markers via VG-Wort you may upload this file and import contained markers here.', $this->textDomain), '</p>',
                 ($isPremium ? '<p>&nbsp;</p>' : ''),
                 '<p><input type="file" name="csvfile" /></p>',
-                '<p><button type="submit" class="button action', ($isPremium ? '' : ' button-primary'), '" name="action" value="worthy_import_csv">', __ ('Import CSV', $this->textDomain), '</button></p>',
+                '<p><button type="submit" class="button action', ($isPremium ? '' : ' button-primary'), '" name="action" value="wp-worthy-import-csv">', __ ('Import CSV', $this->textDomain), '</button></p>',
               '</form>',
             ($isPremium ? '</div><div class="clear"></div>' : ''),
           '</div>',
@@ -1052,7 +1086,7 @@
                 '<label for="wp-worthy-export-premium-reported">' . __ ('Export markers that have already been reported', $this->textDomain) . '</label>'
             ),
               '</p><p>',
-                '<button type="submit" class="button action button-primary" name="action" value="worthy-export-csv">', __ ('Export CSV', $this->textDomain), '</button>',
+                '<button type="submit" class="button action button-primary" name="action" value="wp-worthy-export-csv">', __ ('Export CSV', $this->textDomain), '</button>',
               '</p>',
             '</form>',
           '</div>',
@@ -1088,8 +1122,8 @@
                 '<input type="checkbox" name="migrate_repair_dups" id="wp-worthy-migrate_repair_dups" value="1" /> ',
                 '<label for="wp-worthy-migrate_repair_dups">', __ ('Assign new markers to posts that have a marker assigned that is already used', $this->textDomain), '</label>',
               '</p><p>',
-                '<button type="submit" class="button action" name="action" value="worthy_migrate_preview">', __ ('Preview', $this->textDomain), '</button> ',
-                '<button type="submit" class="button action button-primary" name="action" value="worthy_migrate">', __ ('Migrate posts and pages', $this->textDomain), '</button>',
+                '<button type="submit" class="button action" name="action" value="wp-worthy-migrate-preview">', __ ('Preview', $this->textDomain), '</button> ',
+                '<button type="submit" class="button action button-primary" name="action" value="wp-worthy-migrate">', __ ('Migrate posts and pages', $this->textDomain), '</button>',
               '</p>',
             '</form>',
           '</div>',
@@ -1097,36 +1131,72 @@
     }
     // }}}
     
-    // {{{ adminMenuTools
+    // {{{ adminMenuSettings
     /**
-     * Display tools-section on admin-menu
+     * Display settings-section on admin-menu
      * 
      * @access private
      * @return void
      **/
-    private function adminMenuTools () {
+    private function adminMenuSettings () {
       global $wpdb;
       
+      $eUID = get_current_user_id ();
+      
+      // Collect available users for account-sharing
+      $sharingUsers = $wpdb->get_results ('SELECT u.ID, u.display_name, u.user_login, m.meta_value FROM `' . $this->getTablename ('users') . '` u LEFT JOIN `' . $this->getTablename ('usermeta') . '` m ON (u.ID=m.user_id AND m.meta_key="wp-worthy-authorid") WHERE meta_value IS NULL AND NOT ID=' . intval ($eUID));
+      
+      // Personal settings
       echo
         '<div class="stuffbox">',
-          '<h3>', __ ('Private Marker Inquiry', $this->textDomain), '</h3>',
+          '<h3>', __ ('Personal settings', $this->textDomain), '</h3>',
           '<div class="inside">',
-            '<form method="post" enctype="multipart/form-data" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_TOOLS), '">',
+            '<form class="worthy-form" method="post" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_SETTINGS), '">',
               '<p>',
-                __ ('The private-marker-inquiry will display a list of markers managed by Worthy (including post-assignment) from a CSV-List.', $this->textDomain), '<br />',
-                __ ('You may upload a CSV-file like the one you can download from the marker-inquiry at T.O.M..', $this->textDomain),
+                '<input type="checkbox" id="wp-worthy-auto-assign-markers" name="wp-worthy-auto-assign-markers" value="1"', (get_user_meta ($eUID, 'wp-worthy-auto-assign-markers', true) == 1 ? ' checked="1"' : ''), ' /> ',
+                '<label for="wp-worthy-auto-assign-markers">', __ ('Automatically assign a marker to qualified posts', $this->textDomain), '</label>',
+              '</p>';
+      
+      if (count ($sharingUsers) > 0) {
+        $userID = $this->getUserID ();
+        
+        echo
+              '<hr /><p>',
+                '<label for="wp-worthy-account-sharing">', __ ('Account-Sharing', $this->textDomain), ':</label> ',
+                '<select id="wp-worthy-account-sharing" name="wp-worthy-account-sharing">',
+                  '<option value="0">', __ ('Don\'t use other account', $this->textDomain), '</option>';
+        
+        foreach ($sharingUsers as $sharingUser)
+          echo    '<option value="', $sharingUser->ID, '"', ($userID == $sharingUser->ID ? ' selected="1"' : ''), '>', $sharingUser->display_name, ' (', $sharingUser->user_login, ')</option>';
+        
+        echo
+                '</select>',
               '</p><p>',
-                __ ('CSV-File containing private markers', $this->textDomain), ':<br />',
-                '<input type="file" name="worthy_marker_file" accept="text/csv" />',
+                __ ('With account-sharing you can link your wordpress-account to another one.', $this->textDomain), ' ',
+                __ ('In this case worthy will behave just like the other account performs your actions, e.g. markers will be imported for this account and will be assigned to posts from this account.', $this->textDomain), ' ',
+                __ ('The same also applies to Worthy Premium of course.', $this->textDomain),
+              '</p><hr />';
+      }
+      
+      echo
+              '<p class="wp-worthy-no-sharing">',
+                '<label for="wp-worthy-default-server">', __ ('Default VG-Wort Server', $this->textDomain), '</label>',
+                '<input type="text" id="wp-worthy-default-server" name="wp-worthy-default-server" value="', esc_attr (get_user_meta ($eUID, 'wp-worthy-default-server', true)), '" />',
+              '</p><p class="wp-worthy-no-sharing">',
+                __ ('When using a publisher-account at VG-Wort CSV-files don\'t come with server-information set, in this case Worthy has to know which server you are using.', $this->textDomain),
+              '</p><p>',
+                '<button type="submit" class="button action button-primary" name="action" value="wp-worthy-settings">', __ ('Save'), '</button>',
               '</p>',
-              '<p><button type="submit" name="action" value="worthy_marker_inquiry" class="button action">', __ ('Search private markers', $this->textDomain), '</button></p>',
             '</form>',
           '</div>',
-        '</div>',
+        '</div>';
+      
+      // Toolbox for reindexing posts
+      echo
         '<div class="stuffbox">',
           '<h3>', __ ('Worthy Index', $this->textDomain), '</h3>',
           '<div class="inside">',  
-            '<form method="post" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_TOOLS), '">',
+            '<form method="post" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_SETTINGS), '">',
               '<ul>',
                 '<li><strong>', sprintf (__ ('%d posts', $this->textDomain), $wpdb->get_var ('SELECT count(*) FROM `' . $this->getTablename ('postmeta') . '` WHERE meta_key="worthy_counter"')) . '</strong> ', __ ('on index', $this->textDomain), '</li>',
                 '<li><strong>', sprintf (__ ('%d posts', $this->textDomain), $this->getUnindexedCount ()), '</strong> ', __ ('do not have a length-index for Worthy stored', $this->textDomain), '</li>',
@@ -1383,9 +1453,9 @@
       
       echo
             '<ul class="ul-square">',
-              '<li><span class="worthy-label">', __ ('Number of reports remaining', $this->textDomain), ':</span> ', sprintf (__ ('%d reports', $this->textDomain), $Status ['ReportLimit']), '</li>',
-              '<li><span class="worthy-label">', __ ('Begin of subscribtion', $this->textDomain), ':</span> ', sprintf (__ ('%s at %s', $this->textDomain), date_i18n ($df, $Status ['ValidFrom']), date_i18n ($tf, $Status ['ValidFrom'])), '</li>',
-              '<li><span class="worthy-label">', __ ('End of subscribtion', $this->textDomain), ':</span> ', sprintf (__ ('%s at %s', $this->textDomain), date_i18n ($df, $Status ['ValidUntil']), date_i18n ($tf, $Status ['ValidUntil'])), '</li>',
+              '<li><span class="wp-worthy-label">', __ ('Number of reports remaining', $this->textDomain), ':</span> ', sprintf (__ ('%d reports', $this->textDomain), $Status ['ReportLimit']), '</li>',
+              '<li><span class="wp-worthy-label">', __ ('Begin of subscribtion', $this->textDomain), ':</span> ', sprintf (__ ('%s at %s', $this->textDomain), date_i18n ($df, $Status ['ValidFrom']), date_i18n ($tf, $Status ['ValidFrom'])), '</li>',
+              '<li><span class="wp-worthy-label">', __ ('End of subscribtion', $this->textDomain), ':</span> ', sprintf (__ ('%s at %s', $this->textDomain), date_i18n ($df, $Status ['ValidUntil']), date_i18n ($tf, $Status ['ValidUntil'])), '</li>',
             '</ul>',
             '<p><a href="', admin_url ('admin.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_PREMIUM . '&shopping=isfun'), '">',
             ($Status ['Status'] == 'registered' ?
@@ -1400,23 +1470,23 @@
           '<div class="inside">',
             '<ul class="ul-square">',
               '<li>',
-                '<span class="worthy-label">', __ ('Number of markers imported', $this->textDomain), ':</span> ', intval (get_user_meta ($userID, 'worthy_premium_markers_imported', true)), ' (', sprintf (__ ('%d total', $this->textDomain), get_option ('worthy_premium_markers_imported', 0)), ') ',
+                '<span class="wp-worthy-label">', __ ('Number of markers imported', $this->textDomain), ':</span> ', intval (get_user_meta ($userID, 'worthy_premium_markers_imported', true)), ' (', sprintf (__ ('%d total', $this->textDomain), get_option ('worthy_premium_markers_imported', 0)), ') ',
                 '<small>(<a href="', admin_url ('admin.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_CONVERT), '">', __ ('Import new markers', $this->textDomain), '</a>)</small>',
               '</li>',
               '<li>',
-                '<span class="worthy-label">', __ ('Number of markers synced', $this->textDomain), ':</span> ', intval (get_user_meta ($userID, 'worthy_premium_marker_updates', true)), ' (', sprintf (__ ('%d total', $this->textDomain), get_option ('worthy_premium_marker_updates', 0)), ') ',
+                '<span class="wp-worthy-label">', __ ('Number of markers synced', $this->textDomain), ':</span> ', intval (get_user_meta ($userID, 'worthy_premium_marker_updates', true)), ' (', sprintf (__ ('%d total', $this->textDomain), get_option ('worthy_premium_marker_updates', 0)), ') ',
                 # '<small>(', $this->inlineAction ($this::ADMIN_SECTION_PREMIUM, 'worthy_premium_sync_markers', __ ('Synchronize now', $this->textDomain)), ')</small>',
               '</li>',
             '</ul>',
             '<ul class="ul-square">',
               '<li>',
-                '<span class="worthy-label">', __ ('Last check of subscribtion-status', $this->textDomain), ':</span> ',
+                '<span class="wp-worthy-label">', __ ('Last check of subscribtion-status', $this->textDomain), ':</span> ',
               ((($ts = intval (get_user_meta ($userID, 'worthy_premium_status_updated', true))) > 0) ?
                 sprintf (__ ('%s at %s', $this->textDomain), date_i18n ($df, $ts), date_i18n ($tf, $ts)) : __ ('Not yet', $this->textDomain)), ' ',
                 '<small>(', $this->inlineAction ($this::ADMIN_SECTION_PREMIUM, 'worthy_premium_sync_status', __ ('Synchronize now', $this->textDomain)), ')</small>',
               '</li>',
               '<li>',
-                '<span class="worthy-label">', __ ('Last syncronisation of marker-status', $this->textDomain), ':</span> ',
+                '<span class="wp-worthy-label">', __ ('Last syncronisation of marker-status', $this->textDomain), ':</span> ',
               ((($ts = intval (get_user_meta ($userID, 'worthy_premium_markers_updated', true))) > 0) ?
                 sprintf (__ ('%s at %s', $this->textDomain), date_i18n ($df, $ts), date_i18n ($tf, $ts)) : __ ('Not yet', $this->textDomain)), ' ',
                 '<small>(', $this->inlineAction ($this::ADMIN_SECTION_PREMIUM, 'worthy_premium_sync_markers', __ ('Synchronize now', $this->textDomain)), ')</small>',
@@ -1502,7 +1572,7 @@
             '<h3>', __ ('Worthy Premium Sign Up', $this->textDomain), '</h3>',
             '<div class="inside">',
               '<div class="worthy-signup">',
-                '<form method="post" class="worthy-form" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_PREMIUM), '">',
+                '<form method="post" id="wp-worthy-signup" class="worthy-form" action="', admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_PREMIUM), '">',
                   '<fieldset>',
                     '<p>',
                       '<label for="wp-worthy-username">', __ ('Username', $this->textDomain), '</label>',
@@ -1513,7 +1583,7 @@
                     '</p><p>',
                       '<input type="checkbox" name="wp-worthy-accept-tac" id="wp-worthy-accept-tac" value="1" /> ',
                       '<label for="wp-worthy-accept-tac">',
-                        sprintf (__ ('I have read and accepted the <a href="%s" id="worthy-terms" target="_blank">terms of service</a> and <a href="%s" id="worthy-privacy" target="_blank">the privacy statement</a>', $this->textDomain), 'https://wp-worthy.de/api/terms.html', 'https://wp-worthy.de/api/privacy.html'),
+                        sprintf (__ ('I have read and accepted the <a href="%s" id="wp-worthy-terms" target="_blank">terms of service</a> and <a href="%s" id="wp-worthy-privacy" target="_blank">the privacy statement</a>', $this->textDomain), 'https://wp-worthy.de/api/terms.html', 'https://wp-worthy.de/api/privacy.html'),
                       '</label>',
                     '</p><p>',
                       '<button type="submit" class="button action" name="action" value="worthy_premium_signup">', __ ('Sign up for Worthy Premium Testdrive', $this->textDomain), '</button>',
@@ -1646,59 +1716,73 @@
           '</div>';
       }
       
+      // Output items available on the shop
       try {
         $Goods = $Client->serviceGetPurchableGoods ($Session);
         
         echo
-          '<form method="post" action="' . admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_PREMIUM . '&shopping=isfun') . '" id="worthy-shop">',
-            '<input type="hidden" name="action" value="worthy_premium_purchase" />',
-            '<div class="stuffbox" id="worthy-shop-goods">',
+          '<form method="post" action="' . admin_url ('admin-post.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_PREMIUM . '&shopping=isfun') . '" id="wp-worthy-shop">',
+            '<input type="hidden" name="action" value="wp-worthy-premium-purchase" />',
+            '<div class="stuffbox" id="wp-worthy-shop-goods">',
               '<h3>', __ ('Worthy Premium Shop', $this->textDomain), '</h3>',
               '<div class="inside">';
         
+        $r = 0;
+        $c = 0;
+        
         foreach ($Goods as $Good) {
           echo
-                '<div class="worthy-menu-half">',
+                '<div class="wp-worthy-menu-half">',
                   '<h4>', __ ($Good->Name, $this->textDomain), '</h4>',
+                ($Good->Description ? '<p>' . __ ($Good->Description, $this->textDomain) . '</p>' : ''),
                   '<p>';
           
           if (!isset ($Good->Required) || !$Good->Required)
             echo
-                    '<input type="radio" name="worthy-good', $Good->ID, '" value="none" id="good-', $Good->ID, '-none" checked="1" /> ',
-                    '<label for="good-', $Good->ID, '-none">',
+                    '<input type="radio" name="wp-worthy-good-', $Good->ID, '" value="none" id="wp-worthy-good-', $Good->ID, '-none" checked="1" /> ',
+                    '<label for="wp-worthy-good-', $Good->ID, '-none">',
                       __ ('Leave unchanged', $this->textDomain),
                     '</label>',
                   '</p><p>';
+          else
+            $r++;
           
           foreach ($Good->Options as $Option)
             echo
-                    '<input type="radio" name="worthy-good', $Good->ID, '" value="', $Option->ID, '" id="good-', $Good->ID, '-', $Option->ID, '"', ($Good->Required && $Option->Default ? ' checked="1"' : ''), ' data-value="', $Option->PriceTotal, '" data-tax="', $Option->PriceTax, '" /> ',
-                    '<label for="good-', $Good->ID, '-', $Option->ID, '">',
-                      '<span class="worthy-label">', __ ($Option->Name, $this->textDomain), '</span>',
-                      '<span class="worthy-value worthy-price">', number_format ($Option->PriceTotal, 2, ',', '.'), ' &euro;*</span>',
+                    '<input type="radio" name="wp-worthy-good-', $Good->ID, '" value="', $Option->ID, '" id="wp-worthy-good-', $Good->ID, '-', $Option->ID, '"', ($Good->Required && $Option->Default ? ' checked="1"' : ''), ' data-value="', $Option->PriceTotal, '" data-tax="', $Option->PriceTax, '" /> ',
+                    '<label for="wp-worthy-good-', $Good->ID, '-', $Option->ID, '">',
+                      '<span class="wp-worthy-label">',
+                        __ ($Option->Name, $this->textDomain),
+                        ($Option->Description ? '<br /><span class="wp-worthy-shop-option-description">' . __ ($Option->Description, $this->textDomain) . '</span>' : ''),
+                      '</span>',
+                      '<span class="wp-worthy-value wp-worthy-price">', number_format ($Option->PriceTotal, 2, ',', '.'), ' &euro;*</span>',
                     '</label><br />';
           
           echo
                   '</p>',
                 '</div>';
+          
+          if ($c++ % 2 == 1)
+            echo '<div class="clear"></div>';
         }
         
         echo
+              ($r == count ($Goods) ? '<div class="wp-worthy-menu-half"><p>' . __ ('You have not purchased any subscribtion yet. Upon the first subscribtion it is required that you but a subscribtion and a bundle as well in combination.', $this->textDomain) . '</p></div>' : ''),
                 '<div class="clear"></div>',
               '</div>',
             '</div>',
             '<div class="stuffbox">',
               '<h3>', __ ('Payment Options', $this->textDomain), '</h3>',
               '<div class="inside">',
-                '<div class="worthy-menu-half">',
+                '<div class="wp-worthy-menu-half">',
                   '<p>',
-                    '<input type="radio" name="worthy-payment" id="worthy-payment-giropay" value="giropay" checked="1" /> ',
-                    '<label for="worthy-payment-giropay">',
+                    '<input type="radio" name="wp-worthy-payment" id="wp-worthy-payment-giropay" value="giropay" checked="1" /> ',
+                    '<label for="wp-worthy-payment-giropay">',
                       '<img src="', plugins_url ('assets/giropay.png', __FILE__), '" width="100" height="43" align="absmiddle" />',
                     '</label>',
-                    '<span id="worthy-giropay">',
+                    '<span id="wp-worthy-payment-giropay-box">',
                       '<strong>BIC:</strong><br />',
-                      '<input type="text" name="worthy-giropay-bic" id="worthy-giropay-bic" autocomplete="off" />',
+                      '<input type="text" name="wp-worthy-payment-giropay-bic" id="wp-worthy-payment-giropay-bic" autocomplete="off" />',
                     '</span>',
                   '</p><p>',
                     '<ul class="ul-square">',
@@ -1708,10 +1792,10 @@
                       '<li>', __ ('German Payment-Service-Provider', $this->textDomain), '</li>',
                     '</ul>',
                   '</p>',
-                '</div><div class="worthy-menu-half">',
+                '</div><div class="wp-worthy-menu-half">',
                   '<p>',
-                    '<input type="radio" name="worthy-payment" id="worthy-payment-paypal" value="paypal" /> ',
-                    '<label for="worthy-payment-paypal">',
+                    '<input type="radio" name="wp-worthy-payment" id="wp-worthy-payment-paypal" value="paypal" /> ',
+                    '<label for="wp-worthy-payment-paypal">',
                       '<img src="', plugins_url ('assets/paypal.png', __FILE__), '" width="150" height="38" align="absmiddle" />',
                     '</label>',
                   '</p><p>',
@@ -1731,12 +1815,12 @@
                   '<button type="submit" class="button button-large button-primary">', __ ('Proceed to checkout', $this->textDomain), '</button><br />',
                 '</p>',
                 '<p>',
-                  '<strong>', __ ('Total', $this->textDomain), ': <span id="worthy-shop-price">0,00</span> &euro;</strong><br />',
-                  '<small>', __ ('Tax included', $this->textDomain), ': <span id="worthy-shop-tax">0,00</span> &euro;</small>',
+                  '<strong>', __ ('Total', $this->textDomain), ': <span id="wp-worthy-shop-price">0,00</span> &euro;</strong><br />',
+                  '<small>', __ ('Tax included', $this->textDomain), ': <span id="wp-worthy-shop-tax">0,00</span> &euro;</small>',
                 '</p><p>',
                   '<input type="checkbox" value="1" name="wp-worthy-accept-tac" id="wp-worthy-accept-tac" /> ',
                   '<label for="wp-worthy-accept-tac">',
-                    sprintf (__ ('I have read and accepted the <a href="%s" id="worthy-terms" target="_blank">terms of service</a> and <a href="%s" id="worthy-privacy" target="_blank">the privacy statement</a>', $this->textDomain), 'https://wp-worthy.de/api/terms.html', 'https://wp-worthy.de/api/privacy.html'),
+                    sprintf (__ ('I have read and accepted the <a href="%s" id="wp-worthy-terms" target="_blank">terms of service</a> and <a href="%s" id="wp-worthy-privacy" target="_blank">the privacy statement</a>', $this->textDomain), 'https://wp-worthy.de/api/terms.html', 'https://wp-worthy.de/api/privacy.html'),
                   '</label>',
                 '</p>',
                 '<p>', __ ('* All price are with tax included', $this->textDomain), '</p>',
@@ -1835,7 +1919,7 @@
         $this::ADMIN_SECTION_MARKERS => 'Markers',
         $this::ADMIN_SECTION_POSTS => 'Posts',
         $this::ADMIN_SECTION_CONVERT => 'Import / Export',
-        $this::ADMIN_SECTION_TOOLS => 'Tools',
+        $this::ADMIN_SECTION_SETTINGS => 'Settings',
         $this::ADMIN_SECTION_PREMIUM => 'Premium',
       );
       
@@ -1928,7 +2012,7 @@
             $msg .=
               '<p>' .
                 '<strong>' .
-                  $this->inlineAction ($this::ADMIN_SECTION_CONVERT, 'worthy_migrate', __ ('Restart migration and assign new markers to this posts', $this->textDomain), array (
+                  $this->inlineAction ($this::ADMIN_SECTION_CONVERT, 'wp-worthy-migrate', __ ('Restart migration and assign new markers to this posts', $this->textDomain), array (
                     'migrate_inline' => ($migrate_inline ? 1 : 0),
                     'migrate_vgw' => ($migrate_vgw ? 1 : 0),
                     'migrate_vgwort' => ($migrate_vgwort ? 1 : 0),
@@ -1948,7 +2032,7 @@
           $this->adminStatus [] = $msg;
         }
       
-      } elseif (($this->Section == $this::ADMIN_SECTION_TOOLS) &&
+      } elseif (($this->Section == $this::ADMIN_SECTION_SETTINGS) &&
           ($_REQUEST ['displayStatus'] == 'reindexDone'))
         $this->adminStatus [] =
           '<div class="wp-worthy-success">' .
@@ -2043,6 +2127,30 @@
       wp_redirect (admin_url ('admin.php?' . http_build_query ($_REQUEST)));
       
       exit ();
+    }
+    // }}}
+    
+    // {{{ saveUserSettings
+    /**
+     * Store user-preferences
+     * 
+     * @access public
+     * @return void
+     **/
+    public function saveUserSettings () {
+      $eUID = get_current_user_id ();
+      
+      update_user_meta ($eUID, 'wp-worthy-auto-assign-markers', (isset ($_REQUEST ['wp-worthy-auto-assign-markers']) && ($_REQUEST ['wp-worthy-auto-assign-markers'] == 1)) ? 1 : 0);
+      update_user_meta ($eUID, 'wp-worthy-default-server', (isset ($_REQUEST ['wp-worthy-default-server']) ? $_REQUEST ['wp-worthy-default-server'] : ''));
+      
+      // Check wheter to set user-sharing
+      if (isset ($_REQUEST ['wp-worthy-account-sharing']) &&
+          (($_REQUEST ['wp-worthy-account-sharing'] == 0) ||
+            $GLOBALS ['wpdb']->get_row ('SELECT u.ID,m.meta_value FROM `' . $this->getTablename ('users') . '` u LEFT JOIN `' . $this->getTablename ('usermeta') . '` m ON (u.ID=m.user_id AND m.meta_key="wp-worthy-authorid") WHERE meta_value IS NULL AND ID=' . intval ($_REQUEST ['wp-worthy-account-sharing']))))
+        // Update the current user
+        update_user_meta ($eUID, 'wp-worthy-authorid', intval ($_REQUEST ['wp-worthy-account-sharing']));
+      
+      wp_redirect (admin_url ('admin.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_SETTINGS . '&displayStatus=settingsSaved'));
     }
     // }}}
     
@@ -2482,7 +2590,7 @@
         }
       
       // Redirect to summary
-      wp_redirect (admin_url ('admin.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_TOOLS . '&displayStatus=reindexDone&postCount=' . $p));
+      wp_redirect (admin_url ('admin.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_SETTINGS . '&displayStatus=reindexDone&postCount=' . $p));
       
       exit ();
     }
@@ -2902,13 +3010,13 @@
       $Goods = array ();
       
       foreach ($_REQUEST as $Key=>$Value)
-        if (substr ($Key, 0, 11) == 'worthy-good') {
+        if (substr ($Key, 0, 15) == 'wp-worthy-good-') {
           if ($Value == 'none')
             continue;
           
-          $Goods [intval (substr ($Key, 11))] = $Good = new stdClass;
+          $Goods [intval (substr ($Key, 15))] = $Good = new stdClass;
           
-          $Good->ID = intval (substr ($Key, 11));
+          $Good->ID = intval (substr ($Key, 15));
           $Good->Options = array ($Option = new stdClass);
           $Option->ID = intval ($Value);
         }
@@ -2919,8 +3027,8 @@
       // Setup payment
       $Payment = new stdClass;
       
-      if (($Payment->Type = $_REQUEST ['worthy-payment']) == 'giropay')
-        $Payment->BIC = $_REQUEST ['worthy-giropay-bic'];
+      if (($Payment->Type = $_REQUEST ['wp-worthy-payment']) == 'giropay')
+        $Payment->BIC = $_REQUEST ['wp-worthy-payment-giropay-bic'];
       
       // Try to start the purchase
       $Result = $Client->servicePurchaseGoods ($Session, $Goods, $Payment, admin_url ('admin.php?page=wp_worthy&section=' . $this::ADMIN_SECTION_PREMIUM . '&shopping=isfun'), $_REQUEST ['wp-worthy-accept-tac']);
@@ -3510,8 +3618,12 @@
         // Retrive the number
         $num = intval ($rec [0]);
         
-        if ($rec [0] != strval ($num))
+        if ($rec [0] != strval ($num)) {
+          if ((count ($rec) == 2) && preg_match ('/^[a-zA-Z0-9]{32}$/', $rec [0]) && preg_match ('/^[a-zA-Z0-9]{32}$/', $rec [1]))
+            $rc [] = array ('url' => null, 'publicCode' => $rec [0], 'privateCode' => $rec [1]);
+
           continue;
+        }
         
         // URL with public marker
         if (!($URL = $this->getURLFromMarkerTag ($rec [1])))

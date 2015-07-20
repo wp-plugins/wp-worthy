@@ -36,6 +36,8 @@ Abhängigkeit von ihrem Status.
 
 = Funktionsumfang =
 
+* Unterstützt Blogs mit mehreren Autoren und eigenen oder gemeinsam
+genutzten Zählmarken (beide Varainten in einem Blog)
 * Separate Übersichten mit den Schwerpunkten Zählmarken wie auch Beiträgen
 * Themenspezifische Filter- und Sortier-Funktionen
 * Bulk-Funktionen für Beiträge zum Zuordnen von Zählmarken oder Ignorieren
@@ -54,6 +56,7 @@ für Worthy
 * Nachträglicher Import von privaten Zählmarken (nach Migration aus Quellen
 mit nur der öffentlichen Zählmarke)
 * Schutz vor mehr als eine Zählmarke in der Blog-Ausgabe
+* Unterstützt HTTPS-gesicherte Weblogs
 * Ignorieren von Beiträgen und Zählmarken (keine Zählmarke für einen Beitrag
 ausgeben)
 
@@ -137,11 +140,27 @@ Um Worthy noch besser zu machen, freuen wir uns über Dein Feedback. Dieses
 Changelog soll den Werdegang von Worthy abbilden, auch wenn aktuell das
 meiste bereits "im Verborgenen" geschehen ist.
 
+= 1.1.2 =
+* Veröffentlicht: 20. Juli 2015 gegen 15:30
+* CSV-Import funktioniert nun auch für Verlagskonten
+* Zählpixel können auch in Blogs verwendet werden die HTTPS nutzen (Danke an
+Chrisss für die Recherche)
+* Wordpress-Nutzer können "zusammengeschaltet" werden
+* Präferenz um automatisch Zählmarken zuzurodnen sobald ein Beitrag die
+Mindestlänge erreicht (Feature-Wunsch eines Nutzers)
+* Die Länger der Überschrift wird im Editor der Meldungsvorschau angezeigt
+(Danke an Chrisss für das gemeinsame Brainstorming)
+* Der Worthy Premium Shop gibt nun etwas mehr Informationen zu den
+verfügbaren Produkten (Feature-Wunsch eines Nutzers)
+
 = 1.1.1 =
+* Veröffentlicht: 15. Juli 2015 gegen 23 Uhr
 * Kategorien- und Schlagwörter-Spalten in Beitragsansicht waren defekt
+(Danke an -thh für den Report)
 * Vorbereitung um einzelne Autoren mit anderen zu verknüpfen
 
 = 1.1 =
+* Veröffentlicht: 15. Juli 2015 gegen 22:30
 * Das Plugin kann nun mehrere Autoren parallel bedienen
 * Beitrag-Tabelle weist auf zu lange Überschriften hin
 * Beiträge können in Meldungs-Vorschau bearbeitet werden
@@ -151,6 +170,7 @@ meiste bereits "im Verborgenen" geschehen ist.
 * Kleinere Anpassungen an der readme.txt
 
 = 1.0 =
+* Veröffentlicht: 13. Juli 2015 gegen 23 Uhr
 * **Erstes öffentliches Release von Worthy**
 * Import und Export von CSV-Listen mit Zählmarken von VG-Wort
 * Zählen von relevanten Zeichen im Beitrags-Editor

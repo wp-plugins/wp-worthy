@@ -316,7 +316,7 @@
             (in_array ($item->ID, $wpvgIDs) ? '<li>' . __ ('Is managed by WP VG-Wort', 'wp-worthy') . '</li>' : '') .
             (in_array ($item->ID, $wppvgwIDs) ? '<li>' . __ ('Is managed by Prosodia VGW', 'wp-worthy') . '</li>' : '') .
             (strlen ($item->public) > 0 ? '<li><strong>' . __ ('Already managed by Worthy', 'wp-worthy') . '</strong></li>' : '') .
-            '<li><a href="#" onclick="worthy_bulk_single(\'worthy_bulk_migrate\', \'' . $item->ID . '\');">' . __ ('Migrate post', 'wp-worthy') . '</a></li>' .
+            '<li><a href="#" onclick="worthy_bulk_single(\'wp-worthy-bulk-migrate\', \'' . $item->ID . '\');">' . __ ('Migrate post', 'wp-worthy') . '</a></li>' .
           '</ul>';
       }
       
@@ -378,7 +378,7 @@
       $Actions = array ();
       
       if (isset ($_REQUEST ['displayPostsForMigration']))
-        $Actions ['worthy_bulk_migrate'] = __ ('Migrate posts', 'wp-worthy');
+        $Actions ['wp-worthy-bulk-migrate'] = __ ('Migrate posts', 'wp-worthy');
       
       $Actions ['worthy_bulk_assign'] = __ ('Assign markers', 'wp-worthy');
       $Actions ['worthy_bulk_ignore'] = __ ('Ignore posts', 'wp-worthy');
