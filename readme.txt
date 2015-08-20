@@ -4,7 +4,7 @@ Donate link: https://wp-worthy.de/
 Tags: VG-Wort, T.O.M., METIS, Zählmarke, Zählpixel, Geld, VGW, Verwertungsgesellschaft WORT
 Requires at least: 3.7
 Tested up to: 4.3
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -144,7 +144,12 @@ Um Worthy noch besser zu machen, freuen wir uns über Dein Feedback. Dieses
 Changelog soll den Werdegang von Worthy abbilden, auch wenn aktuell das
 meiste bereits "im Verborgenen" geschehen ist.
 
+= 1.1.4 =
+* Veröffentlicht: 20 August 2015 gegen 23:30
+* Beschriftung in der Toolbar angepasst
+
 = 1.1.3 =
+* Veröffentlicht: 20. August 2015 gegen 22:15
 * HTML-Code wurde für Wordpress 4.3 angepasst
 * Über die Beitrags-Ansicht von Wordress konnten keine Zählmarken zugeordnet
 werden

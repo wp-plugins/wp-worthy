@@ -10,7 +10,7 @@
    * Plugin Name: wp-worthy
    * Plugin URI: https://wp-worthy.de/
    * Description: VG-Wort Integration for Wordpress
-   * Version: 1.1.3
+   * Version: 1.1.4
    * Author: tiggersWelt.net
    * Author URI: https://tiggerswelt.net/
    * License: GPLv3
@@ -84,7 +84,7 @@
       // Install our menu on admin
       $this->addAdminMenu (
         'Worthy - VG-Wort Integration for Wordpress',
-        'Worthy - VG-Wort Integration for Wordpress',
+        'Worthy',
         'publish_posts',
         __CLASS__ . '-' . $this::ADMIN_SECTION_OVERVIEW,
         'assets/wp-worthy-small.svg',
