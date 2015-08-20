@@ -350,7 +350,7 @@
         }
       } elseif ($isRelevant) {
         $Status = '<span class="worthy-relevant worthy-nomarker worthy-warning">' . __ ('Needs marker', 'wp-worthy') . '</span>';
-        $Links = '<li><a href="#" onclick="worthy_bulk_single(\'worthy_bulk_assign\', \'' . $item->ID . '\');">' . __ ('Assign marker', 'wp-worthy') . '</a></li>';
+        $Links = '<li><a href="#" onclick="worthy_bulk_single(\'wp-worthy-bulk-assign\', \'' . $item->ID . '\');">' . __ ('Assign marker', 'wp-worthy') . '</a></li>';
       } else
         $Status = '<span class="worthy-neutral">OK</span><br /><span class="worthy-notice">' . __ ('Marker assigned without need', 'wp-worthy') . '</span>';
       
@@ -380,7 +380,7 @@
       if (isset ($_REQUEST ['displayPostsForMigration']))
         $Actions ['wp-worthy-bulk-migrate'] = __ ('Migrate posts', 'wp-worthy');
       
-      $Actions ['worthy_bulk_assign'] = __ ('Assign markers', 'wp-worthy');
+      $Actions ['wp-worthy-bulk-assign'] = __ ('Assign markers', 'wp-worthy');
       $Actions ['worthy_bulk_ignore'] = __ ('Ignore posts', 'wp-worthy');
       
       if (defined ('WORTHY_PREMIUM') && WORTHY_PREMIUM) {
@@ -573,7 +573,7 @@
       
       echo
         '</select>',
-        '<button type="submit" class="button action" name="ignore_action" value="1">', __ ('Filter'), '</button>';
+        '<button type="submit" class="button action" name="filter_action" value="1">', __ ('Filter'), '</button>';
       
       echo '</div>';
     }

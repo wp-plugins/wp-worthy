@@ -81,7 +81,7 @@
 }
 
 #wp-worthy-signup p label {
-  width: 100px;
+  width: 120px;
 }
 
 .worthy-form p input + label {
@@ -100,7 +100,7 @@
 .worthy-form p textarea {
   display: inline-block;
   margin-bottom: 10px;
-  width: 390px;
+  width: 370px;
   float: right;
 }
 
@@ -108,7 +108,7 @@
 #wp-worthy-signup p input[type=password],
 #wp-worthy-signup p select,
 #wp-worthy-signup p textarea {
-  width: 230px;
+  width: 210px;
 }
 
 #worthy-feedback p textarea {
@@ -322,4 +322,12 @@ textarea.wp-worthy-inline-content {
 ul#worthy-marker-status ul {
   margin-bottom: 15px;
   padding-left: 20px;
+}
+
+#wp-worthy .stuffbox h2 {
+  padding: 0 12px;
+}
+
+#wp-worthy .stuffbox h3 {
+  padding: 0;
 }

@@ -306,7 +306,7 @@
             '<option value="2"', (isset ($_REQUEST ['worthy-filter-ignored']) && ($_REQUEST ['worthy-filter-ignored'] == '2') ? ' selected="1"' : ''), '>', __ ('Markers with posts assigned that are not ignored', 'wp-worthy'), '</option>',
             '<option value="3"', (isset ($_REQUEST ['worthy-filter-ignored']) && ($_REQUEST ['worthy-filter-ignored'] == '3') ? ' selected="1"' : ''), '>', __ ('Markers with posts assigned that are ignored', 'wp-worthy'), '</option>',
           '</select>',
-          '<button type="submit" class="button action" name="ignore_action" value="1">', __ ('Filter'), '</button>';
+          '<button type="submit" class="button action" name="filter_action" value="1">', __ ('Filter'), '</button>';
       
       echo '</div>';
     }

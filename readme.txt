@@ -3,8 +3,8 @@ Contributors: tiggerswelt
 Donate link: https://wp-worthy.de/
 Tags: VG-Wort, T.O.M., METIS, Zählmarke, Zählpixel, Geld, VGW, Verwertungsgesellschaft WORT
 Requires at least: 3.7
-Tested up to: 4.2.2
-Stable tag: 1.1.2
+Tested up to: 4.3
+Stable tag: 1.1.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -33,6 +33,10 @@ direkt mit der VG-Wort verbindet und wesentliche Funktionen von dort direkt
 in Deinem Wordpress abbildet. Zum Beispiel ist **das Melden von Artikeln**
 kein Problem mit Worthy Premium, genau wie die Recherche nach Zählmarken in
 Abhängigkeit von ihrem Status.
+
+Über Worthy Premium können Meldungen an die VG-Wort vollkommen automatisiert
+durchgeführt werden - auch mit Autoren-Konten und auch wenn dies offiziell
+von der VG-Wort nicht unterstützt wird. Einfach magisch!
 
 = Funktionsumfang =
 
@@ -139,6 +143,23 @@ dass Worthy äußerst bereit für den Einsatz bei anderen Autoren ist.
 Um Worthy noch besser zu machen, freuen wir uns über Dein Feedback. Dieses
 Changelog soll den Werdegang von Worthy abbilden, auch wenn aktuell das
 meiste bereits "im Verborgenen" geschehen ist.
+
+= 1.1.3 =
+* HTML-Code wurde für Wordpress 4.3 angepasst
+* Über die Beitrags-Ansicht von Wordress konnten keine Zählmarken zugeordnet
+werden
+* Ein paar mehr Texte auf Wunsch eines Nutzers hinzugefügt
+* Das Plugin-Icon wurde getauscht
+* Reiter sind nun auch über ein Untermenü aufrufbar
+* Diverse Umstrukturierungen im Quellcode
+* Nach Registrierung für Premium wird der Status automatisch erstmalig
+synchronisiert
+* Für Worthy notwendige Berechtigungen wurden angepasst (waren vorher
+vollkommen falsch)
+* Worthy weißt aggressiver darauf hin, wenn keine Zählmarken mehr verfügbar
+sind
+* Untere Aktion-Dropdown funktioniert nun wieder
+* Die Ausgabe von Zählmarken kann nun komplett unterbunden werden
 
 = 1.1.2 =
 * Veröffentlicht: 20. Juli 2015 gegen 15:30
