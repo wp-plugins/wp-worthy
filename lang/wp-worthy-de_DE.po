@@ -339,6 +339,12 @@ msgstr "Es wurden keine Dateien hochgeladen oder es gab einen Fehler beim Import
 msgid "Export VG-Wort markers"
 msgstr "VG-Wort Zählmarken exportieren"
 
+msgid "Worthy can generate a CSV-file for you that contains known markers and may be imported into any spreadsheet program, e.g. LibreOffice Calc or Microsoft Excel."
+msgstr "Die Export-Funktion erstellt eine CSV-Liste die Worthy bekannte Zählmarken enthält und mit einem Programm für Tabellenkalkulation, z.B. LibreOffice Calc oder Microsoft Excel, geöffnet werden kann."
+
+msgid "You can choose which markers to export and extend them with further information. Using <a href=\"%s\">Worthy Premium</a> you may also filter by state of the markers."
+msgstr "Du kannst auswählen welche Zählmarken Du exportieren magst und kannst sie um ein paar weitere Informationen ergänzen. Mit <a href=\"%s\">Worthy Premium</a> lassen sich die Zählmarken auch nach ihrem Status filtern."
+
 msgid "Export markers that are not assigned to any post or page"
 msgstr "Exportiere Zählmarken die noch nicht verwendet werden"
 
@@ -383,6 +389,15 @@ msgstr "Titel"
 
 msgid "Migrate existing VG-Wort markers"
 msgstr "Bestehende VG-Wort Zählmarken migrieren"
+
+msgid "If you have used markers before Worthy you may want to migrate them to worthy."
+msgstr "Wenn Du vor Worthy schon mit Zählmarken gearbeitet hast, willst Du diese vermutlich in Worthy importieren um sie hier weiternutzen zu können."
+
+msgid "Worthy is able to import markers from other plugins and also markers that are manually embeded into posts."
+msgstr "Worthy kann für Dich die Zählmarken aus anderen Plugins importieren, aber auch Zählmarken finden die Du manuell in Beiträge eingebettet hast."
+
+msgid "If markers where embeded manually or managed via some basic plugins it is neccessary that you import the corresponding CSV-files as well, because worthy need to get in touch with the original private markers."
+msgstr "Bei manuell gepflegten Zählmarken und einigen Plugins solltest Du anschließend noch die alten CSV-Dateien importieren um Worthy mit den privaten Zählmarken bekannt zu machen."
 
 msgid "Please make sure that you have a recent backup of your wordpress-installation!"
 msgstr "Bitte pass auf, dass Du ein aktuelles Backup Deiner Wordpress-Installation hast!"
@@ -459,6 +474,12 @@ msgstr "In diesem Fall wird Worthy sich verhalten, als würden alle Aktionen üb
 
 msgid "The same also applies to Worthy Premium of course."
 msgstr "Das alles gilt natürlich auch für die Nutzung von Worthy Premium."
+
+msgid "Don't output markers on wordpress-frontend"
+msgstr "Keine Zählmarken im Wordpress-Blog ausgeben"
+
+msgid "There might be situations when you want to disable the output of markers managed by Worthy entirely. When you check this option Worthy will stop inserting markers into posts that are viewed on the wordpress frontend."
+msgstr "Unter bestimmten Umständen kann es vorkommen, dass Du keine VG-Wort Zählmarken im Blog einbetten lassen möchtest. Worthy wird aufhören Zählmarken in Deine Beiträge einzubetten, sobald Du diese Option aktivierst."
 
 msgid "Default VG-Wort Server"
 msgstr "Server für Zählmarken"
@@ -675,8 +696,8 @@ msgstr "Wenn Du weiterhin Worthy Premium nutzen möchtest, bitten wir Dich Dein 
 msgid "Worthy Premium Sign Up"
 msgstr "Worthy Premium Anmeldung"
 
-msgid "Username"
-msgstr "Benutzername"
+msgid "Username for VG-Wort T.O.M."
+msgstr "VG-Wort T.O.M. Benutzername"
 
 msgid "Password" 
 msgstr "Passwort"
@@ -934,6 +955,15 @@ msgstr "Der Beitrag enthält mindestens %d Zeichen und könnte so für die Meldu
 
 msgid "Your article is close to %d characters long and though may qualify to be reported to VG-Wort if you write some more words."
 msgstr "Der Beitrag ist fast %d Zeichen lang. Du kannst vielleicht etwas Geld damit veridenen, wenn Du noch ein paar Worte schreibst und eine Zählmarke hinzufügst."
+
+msgid "Worthy was not able to assign a marker to this post because there are no free markers left on the database."
+msgstr "Worthy konnte diesem Beitrag leider keine Zählmarke zuordnen, da keine freien Zählmarken mehr in der Datenbank vorhanden sind."
+
+msgid "Worthy was not able to assign a marker to this post because of an unknown internal error. Please contact developers."
+msgstr "Worthy konnte aufgrund eines unbekannten Fehlers keine Zählmarke zuordnen. Bitte kontaktiere die Entwickler von Worthy!"
+
+msgid "Worthy will not be able to assign a marker to this post because there are no free markers left on the database."
+msgstr "Worthy wird diesem Beitrag keine Zählmarke zuordnen können, da Du keine freien Zählmarken mehr in der Datenbank hast."
 
 msgid "Worthy Premium Debugging"
 msgstr "Worthy Premium Debugging"

@@ -152,10 +152,37 @@
      **/
     public function onAdminMenu () {
       foreach ($this->adminMenus as $Menu) {
-        $hook = add_menu_page (__ ($Menu [0], $this->textDomain), __ ($Menu [1], $this->textDomain), $Menu [2], $Menu [3], $Menu [4], $Menu [6]);
+        if ((substr ($Menu [6], -4, 4) == '.svg') && ($Content = @file_get_contents ($Menu [6])))
+          $Menu [6] = 'data:image/svg+xml;base64,' . base64_encode ($Content);
+        
+        $hook = add_object_page (
+          __ ($Menu [0], $this->textDomain),
+          __ ($Menu [1], $this->textDomain),
+          $Menu [2],
+          $Menu [3],
+          $Menu [4],
+          $Menu [6]
+        );
         
         if ($Menu [5] !== null)
           add_action ('load-' . $hook, $Menu [5]);
+        
+        if (is_array ($Menu [7]))
+          foreach ($Menu [7] as $Child) {
+            $hook = add_submenu_page (
+              $Menu [3],
+              __ ($Child [0], $this->textDomain),
+              __ ($Child [1], $this->textDomain),
+              $Child [2],
+              $Child [3],
+              $Child [4]
+            );
+            
+            if ($Child [5])
+              add_action ('load-' . $hook, $Child [5]);
+            elseif ($Menu [5] !== null)
+              add_action ('load-' . $hook, $Menu [5]);
+          }
       }
     }  
     // }}}
@@ -228,12 +255,13 @@
      * @param string $Slug
      * @param string $Icon
      * @param callable $Handler
-     * @param callable $updateHandler
+     * @param callable $updateHandler (optional)
+     * @param array $Children (optional)
      * 
      * @access portected
      * @return bool
      **/
-    protected function addAdminMenu ($Caption, $Title, $Capability, $Slug, $Icon, $Handler, $updateHandler = null) {
+    protected function addAdminMenu ($Caption, $Title, $Capability, $Slug, $Icon, $Handler, $updateHandler = null, $Children = null) {
       // Check if we are on administrator
       if (!is_admin ())
         return false;
@@ -243,7 +271,7 @@
         $Icon = untrailingslashit (plugins_url ('', $this->pluginPath . '/qcWp.php')) . '/' . $Icon;
       
       // Register the menu
-      $this->adminMenus [$Slug] = array ($Caption, $Title, $Capability, $Slug, $Handler, $updateHandler, $Icon);
+      $this->adminMenus [$Slug] = array ($Caption, $Title, $Capability, $Slug, $Handler, $updateHandler, $Icon, $Children);
       
       // Check wheter to register a handler for this
       if ($this->adminHandlerInstalled)
