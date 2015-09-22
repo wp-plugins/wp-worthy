@@ -333,50 +333,107 @@ msgstr "%d Zählmarken wurden neu zur Datenbank hinzugefügt, insgesamt gab es %
 msgid "No files were uploaded or there was an error importing all records"
 msgstr "Es wurden keine Dateien hochgeladen oder es gab einen Fehler beim Import"
 
-###
-# Export toolbox
+msgid "Personalize and import VG-Wort markers"
+msgstr "VG-Wort Zählmarken personalisieren und importieren"
 
-msgid "Export VG-Wort markers"
-msgstr "VG-Wort Zählmarken exportieren"
+msgid "Some very active authors may run out of markers before the end of the year. If this also happend to you, you may personalize anonymous markers here by uploading the CSV-File you received from VG-Wort by ordering anonymous markers on their website."
+msgstr "Sehr fleißige Autoren haben gelegentlich mehr Jahr als Zählmarken zur Verfügung. Für diesen Fall kannst Du hier anonyme Zählmarken, wie Du sie über die Webseite der VG-Wort bestellen kannst, personaliseren und in Worthy importieren. Lade dazu einfach die CSV-Liste hier hoch."
+
+msgid "CSV-File containing anonymous markers"
+msgstr "CSV-Datei mit anonymen Zählpixeln"
+
+msgid "Import markers after they have been claimed"
+msgstr "Zählmarken importieren nachdem sie personalisiert wurden"
+
+msgid "Personalize and import markers"
+msgstr "Zählmarken personalisieren und importieren"
+
+msgid "The following markers were personalized:"
+msgstr "Diese VG-Wort Zählmarken wurden erfolgreich personalisiert:"
+
+msgid "%d markers were added to database"
+msgstr "%d Zählmarken wurden insgesamt zur Worthy-Datenbank hinzugefügt"
+
+msgid "The following markers could not be personalized:"
+msgstr "Die folgenden VG-Wort Zählmarken konnten leider nicht personalisiert werden:"
+
+###
+# Report/Export toolbox
+
+msgid "Create Report about VG-Wort markers"
+msgstr "Bericht zu VG-Wort Zählmarken"
 
 msgid "Worthy can generate a CSV-file for you that contains known markers and may be imported into any spreadsheet program, e.g. LibreOffice Calc or Microsoft Excel."
-msgstr "Die Export-Funktion erstellt eine CSV-Liste die Worthy bekannte Zählmarken enthält und mit einem Programm für Tabellenkalkulation, z.B. LibreOffice Calc oder Microsoft Excel, geöffnet werden kann."
+msgstr "Die Bericht-Funktion erstellt eine CSV-Liste die Worthy bekannte Zählmarken enthält und mit einem Programm für Tabellenkalkulation, z.B. LibreOffice Calc oder Microsoft Excel, geöffnet werden kann."
 
-msgid "You can choose which markers to export and extend them with further information. Using <a href=\"%s\">Worthy Premium</a> you may also filter by state of the markers."
-msgstr "Du kannst auswählen welche Zählmarken Du exportieren magst und kannst sie um ein paar weitere Informationen ergänzen. Mit <a href=\"%s\">Worthy Premium</a> lassen sich die Zählmarken auch nach ihrem Status filtern."
+msgid "You can choose which markers to be included in the report and extend them with further information. Using <a href=\"%s\">Worthy Premium</a> you may also filter by state of the markers."
+msgstr "Du kannst auswählen welche Zählmarken Du im Bericht enthalten haben magst und kannst sie um ein paar weitere Informationen ergänzen. Mit <a href=\"%s\">Worthy Premium</a> lassen sich die Zählmarken auch nach ihrem Status filtern."
 
-msgid "Export markers that are not assigned to any post or page"
-msgstr "Exportiere Zählmarken die noch nicht verwendet werden"
+msgid "Report markers that are not assigned to any post or page"
+msgstr "Zählmarken die noch nicht verwendet werden im Bericht mit einbeziehen"
 
-msgid "Export markers that are actually in use by a post or a page"
-msgstr "Exportiere Zählmarken die bereits verwendet werden"
+msgid "Report markers that are actually in use by a post or a page"
+msgstr "Zählmarken die bereits verwendet werden im Bericht mit einbeziehen"
 
-msgid "Export title of post if assigned"
-msgstr "Titel des Beitrags exportieren (sofern zugewiesen)"
+msgid "Report title of post if assigned"
+msgstr "Titel des Beitrags im Bericht erwähnen (sofern zugewiesen)"
 
-msgid "Export markers from all authors"
-msgstr "Zählmarken von allen Autoren exportieren"
+msgid "Report markers from all authors"
+msgstr "Über Zählmarken von allen Autoren berichten"
 
-msgid "Export markers from specific authors"
-msgstr "Autoren für Export auswählen"
+msgid "Report markers from specific authors"
+msgstr "Autoren für den Bericht auswählen"
 
-msgid "Export markers that were not counted yet"
-msgstr "Exportiere Zählmarken die nocht nicht gezählt wurden"
+msgid "Report markers that were not counted yet"
+msgstr "Zählmarken die nocht nicht gezählt wurden im Bericht mit einbeziehen"
 
-msgid "Export markers that have not qualified yet"
-msgstr "Exportiere Zählmarken die den Mindestzugriff noch nicht erreicht haben"
+msgid "Report markers that have not qualified yet"
+msgstr "Zählmarken die den Mindestzugriff noch nicht erreicht haben im Bericht mit einbeziehen"
 
-msgid "Export markers that have qualified partial"
-msgstr "Exportiere Zählmarken die den Mindestzugriff anteilig erreicht haben"
+msgid "Report markers that have qualified partial"
+msgstr "Zählmarken die den Mindestzugriff anteilig erreicht haben im Bericht mit einbeziehen"
 
-msgid "Export markers that have qualified"
-msgstr "Exportiere Zählmarken die den Mindestzugriff erreicht haben"
+msgid "Report markers that have qualified"
+msgstr "Zählmarken die den Mindestzugriff erreicht haben im Bericht mit einbeziehen"
 
-msgid "Export markers that have already been reported"
-msgstr "Exportiere Zählmarken die bereits gemeldet wurden"
+msgid "Report markers that have already been reported"
+msgstr "Zählmarken die bereits gemeldet wurden im Bericht mit einbeziehen"
 
-msgid "Export CSV"
-msgstr "CSV-Datei exportieren"
+msgid "Generate Report as CSV"
+msgstr "Bericht als CSV-Datei erstellen"
+
+msgid "Export unused VG-Wort markers"
+msgstr "Ungenutzte VG-Wort Zählmarken exportieren"
+
+msgid "Worthy can generate a CSV-File containing unused VG-Wort markers for you. All markers on the export will be removed from Worthy's database."
+msgstr "Die Export-Funktion für ungenutzte VG-Wort Zählmarken erstellt eine CSV-Datei mit ungenutzten Zählmarken in der Worthy-Datenbank, stellt diese zum Download bereit und entfernt diese Zählmarken aus der Worthy-Datenbank."
+
+msgid "The exported CSV-file is usefull if you already have ordered the maximum amount of markers for an entire year and need additional markers at another place."
+msgstr "Diese Funktion ist hilfreich, wenn Du bereits für ein Jahr Dein gesamtes Kontingent an VG-Wort Zählmarken ausgeschöpft hast und noch Zählmarken an anderer Stelle benötigst."
+
+msgid "You may choose between two export-formats - one suitable for \"normal\" VG-Wort Authors and another one for publishers. We recommend you to use the one for authors as less informations are lost on export."
+msgstr "Du kannst zwischen einem Export-Format für \"normale\" VG-Wort Autoren oder dem VG-Wort-Format für Verlage wählen, wobei neu beim Export für Autoren gewährleistet ist, dass alle Informationen erhalten bleiben."
+
+msgid "Be aware that using this export-function will remove information from your Worthy-Database. Use it with caution!"
+msgstr "Bitte sei Dir bewusst, dass diese Funktion Informationen aus der Worthy-Datenbank löscht. Benutze Sie daher mit Vor- wie auch Nachsicht."
+
+msgid "Number of unused markers"
+msgstr "Anzahl ungenutzter Zählmarken"
+
+msgid "%d available"
+msgstr "%d verfügbar"
+
+msgid "Export-Format to use"
+msgstr "Gewünschtes Export-Format"
+
+msgid "Authors"
+msgstr "Autoren"
+
+msgid "Publishers"
+msgstr "Verlage"
+
+msgid "Export markers and remove from database"
+msgstr "VG-Wort Zählmarken exportierung und aus der Datenbank entfernen"
 
 msgid "Post ID"
 msgstr "Beitrags ID"
@@ -954,7 +1011,7 @@ msgid "Your article is more than %d characters long but you did not assign a mar
 msgstr "Der Beitrag enthält mindestens %d Zeichen und könnte so für die Meldung an die VG-Wort relevant sein. Wir empfehlen eine Zählmarke zuzuordnen oder den Beitrag für Worthy zu ignorieren."
 
 msgid "Your article is close to %d characters long and though may qualify to be reported to VG-Wort if you write some more words."
-msgstr "Der Beitrag ist fast %d Zeichen lang. Du kannst vielleicht etwas Geld damit veridenen, wenn Du noch ein paar Worte schreibst und eine Zählmarke hinzufügst."
+msgstr "Der Beitrag ist fast %d Zeichen lang. Du kannst vielleicht etwas Geld damit verdienen, wenn Du noch ein paar Worte schreibst und eine Zählmarke hinzufügst."
 
 msgid "Worthy was not able to assign a marker to this post because there are no free markers left on the database."
 msgstr "Worthy konnte diesem Beitrag leider keine Zählmarke zuordnen, da keine freien Zählmarken mehr in der Datenbank vorhanden sind."

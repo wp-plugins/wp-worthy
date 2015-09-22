@@ -10,7 +10,7 @@
    * Plugin Name: wp-worthy
    * Plugin URI: https://wp-worthy.de/
    * Description: VG-Wort Integration for Wordpress
-   * Version: 1.1.4
+   * Version: 1.2
    * Author: tiggersWelt.net
    * Author URI: https://tiggerswelt.net/
    * License: GPLv3
@@ -138,7 +138,9 @@
       // Register our own POST-Handlers
       add_action ('admin_post_wp-worthy-settings', array ($this, 'saveUserSettings'));
       add_action ('admin_post_wp-worthy-import-csv', array ($this, 'importMarkers'));
-      add_action ('admin_post_wp-worthy-export-csv', array ($this, 'exportMarkers'));
+      add_action ('admin_post_wp-worthy-claim-and-import-csv', array ($this, 'importClaimMarkers'));
+      add_action ('admin_post_wp-worthy-report-csv', array ($this, 'reportMarkers'));
+      add_action ('admin_post_wp-worthy-export-csv', array ($this, 'exportUnusedMarkers'));
       add_action ('admin_post_wp-worthy-migrate-preview', array ($this, 'migratePostsPreview'));
       add_action ('admin_post_wp-worthy-bulk-migrate', array ($this, 'migratePostsBulk'));
       add_action ('admin_post_wp-worthy-migrate', array ($this, 'migratePosts'));
@@ -203,7 +205,10 @@
         
         update_option ('worthy_version', 1);
       }
-      
+      if ($version < 2) {
+        $GLOBALS ['wpdb']->query ('UPDATE `' . $this->getTablename ('worthy_markers') . '` SET postid=NULL WHERE postid IN (SELECT ID FROM `' . $this->getTablename ('posts') . '` WHERE post_type="revision")');
+        update_option ('worthy_version', 2);
+      }
     }
     // }}}
     
@@ -413,6 +418,9 @@
      * @return int
      **/
     public function getUserID ($UserID = null) {
+      if ($UserID === true)
+        return intval (get_current_user_id ());
+      
       if ($userID === null)
         $userID = intval (get_current_user_id ());
       
@@ -557,7 +565,7 @@
         $haveMarker = true;
       
       // Do the output
-      $url = htmlentities ($_SERVER ['REQUEST_URI']);
+      $url = esc_html ($_SERVER ['REQUEST_URI']);
       
       if (strpos ($url, '?') === false)
         $url .= '?action=wp-worthy-apply&post_id=';
@@ -627,7 +635,7 @@
      * @return void
      **/
     private function adminNotice ($Message, $Class) {
-      echo '<script type="text/javascript"> worthy.postNotice ("', htmlentities ($Message), '", "', htmlentities ($Class), '"); </script>';
+      echo '<script type="text/javascript"> worthy.postNotice ("', esc_html ($Message), '", "', esc_html ($Class), '"); </script>';
     }
     // }}}
     
@@ -639,6 +647,10 @@
      * @return bool
      **/
     public function adminSavePost ($postID, $force = false) {
+      // Just ignore revisions
+      if (wp_is_post_revision ($postID))
+        return;
+      
       // Store the length of the post
       if (isset ($_REQUEST ['content']))
         update_post_meta ($postID, 'worthy_counter', $this->getPostLength ($_REQUEST ['content']));
@@ -1185,37 +1197,60 @@
               '</form>',
             ($isPremium ? '</div><div class="clear"></div>' : ''),
           '</div>',
-        '</div>',
+        '</div>';
+      
+      if ($isPremium)
+        echo
         '<div class="stuffbox">',
-          '<h2>', __ ('Export VG-Wort markers', $this->textDomain), '</h2>',
+          '<h2>', __ ('Personalize and import VG-Wort markers', $this->textDomain), '</h2>',
+          '<div class="inside">',
+            '<form method="post" enctype="multipart/form-data" action="', $this->linkSection ($this::ADMIN_SECTION_CONVERT, null, true), '">',
+              '<p>',
+                __ ('Some very active authors may run out of markers before the end of the year. If this also happend to you, you may personalize anonymous markers here by uploading the CSV-File you received from VG-Wort by ordering anonymous markers on their website.', $this->textDomain),
+              '</p><p>',
+                '<label for="wp-worthy-claim-csv">', __ ('CSV-File containing anonymous markers', $this->textDomain), '</label><br />',
+                '<input type="file" name="wp-worthy-claim-csv" id="wp-worthy-claim-csv" />',
+              '</p><p>',
+                '<input type="checkbox" name="wp-worthy-claim-import" id="wp-worthy-claim-import" value="1" checked="1" /> ',
+                '<label for="wp-worthy-claim-import">', __ ('Import markers after they have been claimed', $this->textDomain), '</label>',
+              '</p><p>',
+                '<button type="submit" class="button action button-primary" name="action" value="wp-worthy-claim-and-import-csv">', __ ('Personalize and import markers', $this->textDomain), '</button>',
+              '</p>',
+            '</form>',
+          '</div>',
+        '</div>';
+      
+      echo
+        '<div class="stuffbox">',
+          '<h2>', __ ('Create Report about VG-Wort markers', $this->textDomain), '</h2>',
           '<div class="inside">',
             '<p>',
               __ ('Worthy can generate a CSV-file for you that contains known markers and may be imported into any spreadsheet program, e.g. LibreOffice Calc or Microsoft Excel.', $this->textDomain), '<br />',
-              sprintf (__ ('You can choose which markers to export and extend them with further information. Using <a href="%s">Worthy Premium</a> you may also filter by state of the markers.', $this->textDomain), $this->linkSection ($this::ADMIN_SECTION_PREMIUM)),
+              sprintf (__ ('You can choose which markers to be included in the report and extend them with further information. Using <a href="%s">Worthy Premium</a> you may also filter by state of the markers.', $this->textDomain), $this->linkSection ($this::ADMIN_SECTION_PREMIUM)),
             '</p>',
             '<form method="post" action="', $this->linkSection ($this::ADMIN_SECTION_CONVERT, null, true), '">',
               '<p>',
-                '<input type="checkbox" name="wp-worthy-export-unused" id="wp-worthy-export-unused" value="1" /> ',
-                '<label for="wp-worthy-export-unused">', __ ('Export markers that are not assigned to any post or page', $this->textDomain), '</label><br />',
-                '<input type="checkbox" name="wp-worthy-export-used" id="wp-worthy-export-used" value="1" checked="1" /> ',
-                '<label for="wp-worthy-export-used">', __ ('Export markers that are actually in use by a post or a page', $this->textDomain), '</label><br />',
-                '<input type="checkbox" name="wp-worthy-export-title" id="wp-worthy-export-title" value="1" /> ',
-                '<label for="wp-worthy-export-title">', __ ('Export title of post if assigned', $this->textDomain), '</label>';
+                '<input type="checkbox" name="wp-worthy-report-unused" id="wp-worthy-report-unused" value="1" /> ',
+                '<label for="wp-worthy-report-unused">', __ ('Report markers that are not assigned to any post or page', $this->textDomain), '</label><br />',
+                '<input type="checkbox" name="wp-worthy-report-used" id="wp-worthy-report-used" value="1" checked="1" /> ',
+                '<label for="wp-worthy-report-used">', __ ('Report markers that are actually in use by a post or a page', $this->textDomain), '</label><br />',
+                '<input type="checkbox" name="wp-worthy-report-title" id="wp-worthy-report-title" value="1" /> ',
+                '<label for="wp-worthy-report-title">', __ ('Report title of post if assigned', $this->textDomain), '</label>';
       
       if (count ($Users = $GLOBALS ['wpdb']->get_results ('SELECT m.userid, u.display_name FROM `' . $this->getTablename ('worthy_markers')  . '` m, `' . $this->getTablename ('users')  . '` u WHERE m.userid=u.ID GROUP BY userid')) > 1) {
         echo
               '</p><p>',
-                '<input type="radio" name="wp-worthy-export-filter" id="wp-worthy-export-users-all" value="0" onchange="document.getElementById(\'wp-worthy-export-users\').style.display=\'none\'" checked="1" /> ',
-                '<label for="wp-worthy-export-users-all">', __ ('Export markers from all authors', $this->textDomain), '</label><br />',
-                '<input type="radio" name="wp-worthy-export-filter" id="wp-worthy-export-users-filter" value="1" onchange="document.getElementById(\'wp-worthy-export-users\').style.display=\'block\'" /> ',
-                '<label for="wp-worthy-export-users-filter">', __ ('Export markers from specific authors', $this->textDomain), '</label><br />',
-                '<blockquote style="display:none" id="wp-worthy-export-users">';
+                '<input type="radio" name="wp-worthy-report-filter" id="wp-worthy-report-users-all" value="0" onchange="document.getElementById(\'wp-worthy-report-users\').style.display=\'none\'" checked="1" /> ',
+                '<label for="wp-worthy-report-users-all">', __ ('Report markers from all authors', $this->textDomain), '</label><br />',
+                '<input type="radio" name="wp-worthy-report-filter" id="wp-worthy-report-users-filter" value="1" onchange="document.getElementById(\'wp-worthy-report-users\').style.display=\'block\'" /> ',
+                '<label for="wp-worthy-report-users-filter">', __ ('Report markers from specific authors', $this->textDomain), '</label><br />',
+                '<blockquote style="display:none" id="wp-worthy-report-users">';
       
         $uid = $this->getUserID ();
       
         foreach ($Users as $User)
-          echo    '<input type="checkbox" id="wp-worthy-export-user-', $User->userid, '" name="wp-worthy-export-user[]" value="', $User->userid, '"', ($uid == $User->userid ? ' checked="1"' : ''), ' /> ',
-                  '<label for="wp-worthy-export-user-', $User->userid, '">', $User->display_name, '</label><br />';
+          echo    '<input type="checkbox" id="wp-worthy-report-user-', $User->userid, '" name="wp-worthy-report-user[]" value="', $User->userid, '"', ($uid == $User->userid ? ' checked="1"' : ''), ' /> ',
+                  '<label for="wp-worthy-report-user-', $User->userid, '">', $User->display_name, '</label><br />';
         
         echo 
                 '</blockquote>';
@@ -1224,19 +1259,43 @@
       echo
             (!$isPremium ? '' :
               '</p><p>' .
-                '<input type="checkbox" name="wp-worthy-export-premium-uncounted" id="wp-worthy-export-premium-uncounted" value="1" checked="1" /> ' .
-                '<label for="wp-worthy-export-premium-uncounted">' . __ ('Export markers that were not counted yet', $this->textDomain) . '</label><br />' .
-                '<input type="checkbox" name="wp-worthy-export-premium-notqualified" id="wp-worthy-export-premium-notqualified" value="1" checked="1" /> ' .
-                '<label for="wp-worthy-export-premium-notqualified">' . __ ('Export markers that have not qualified yet', $this->textDomain) . '</label><br />' .
-                '<input type="checkbox" name="wp-worthy-export-premium-partialqualified" id="wp-worthy-export-premium-partialqualified" value="1" checked="1" /> ' .
-                '<label for="wp-worthy-export-premium-partialqualified">' . __ ('Export markers that have qualified partial', $this->textDomain) . '</label><br />' .
-                '<input type="checkbox" name="wp-worthy-export-premium-qualified" id="wp-worthy-export-premium-qualified" value="1" checked="1" /> ' .
-                '<label for="wp-worthy-export-premium-qualified">' . __ ('Export markers that have qualified', $this->textDomain) . '</label><br />' .
-                '<input type="checkbox" name="wp-worthy-export-premium-reported" id="wp-worthy-export-premium-reported" value="1" checked="1" /> ' .
-                '<label for="wp-worthy-export-premium-reported">' . __ ('Export markers that have already been reported', $this->textDomain) . '</label>'
+                '<input type="checkbox" name="wp-worthy-report-premium-uncounted" id="wp-worthy-report-premium-uncounted" value="1" checked="1" /> ' .
+                '<label for="wp-worthy-report-premium-uncounted">' . __ ('Report markers that were not counted yet', $this->textDomain) . '</label><br />' .
+                '<input type="checkbox" name="wp-worthy-report-premium-notqualified" id="wp-worthy-report-premium-notqualified" value="1" checked="1" /> ' .
+                '<label for="wp-worthy-report-premium-notqualified">' . __ ('Report markers that have not qualified yet', $this->textDomain) . '</label><br />' .
+                '<input type="checkbox" name="wp-worthy-report-premium-partialqualified" id="wp-worthy-report-premium-partialqualified" value="1" checked="1" /> ' .
+                '<label for="wp-worthy-report-premium-partialqualified">' . __ ('Report markers that have qualified partial', $this->textDomain) . '</label><br />' .
+                '<input type="checkbox" name="wp-worthy-report-premium-qualified" id="wp-worthy-report-premium-qualified" value="1" checked="1" /> ' .
+                '<label for="wp-worthy-report-premium-qualified">' . __ ('Report markers that have qualified', $this->textDomain) . '</label><br />' .
+                '<input type="checkbox" name="wp-worthy-report-premium-reported" id="wp-worthy-report-premium-reported" value="1" checked="1" /> ' .
+                '<label for="wp-worthy-report-premium-reported">' . __ ('Report markers that have already been reported', $this->textDomain) . '</label>'
             ),
               '</p><p>',
-                '<button type="submit" class="button action button-primary" name="action" value="wp-worthy-export-csv">', __ ('Export CSV', $this->textDomain), '</button>',
+                '<button type="submit" class="button action button-primary" name="action" value="wp-worthy-report-csv">', __ ('Generate Report as CSV', $this->textDomain), '</button>',
+              '</p>',
+            '</form>',
+          '</div>',
+        '</div>',
+        '<div class="stuffbox">',
+          '<h2>', __ ('Export unused VG-Wort markers', $this->textDomain), '</h2>',
+          '<div class="inside">',
+            '<form method="post" action="', $this->linkSection ($this::ADMIN_SECTION_CONVERT, null, true), '">',
+              '<p>',
+                __ ('Worthy can generate a CSV-File containing unused VG-Wort markers for you. All markers on the export will be removed from Worthy\'s database.', $this->textDomain), ' ',
+                __ ('The exported CSV-file is usefull if you already have ordered the maximum amount of markers for an entire year and need additional markers at another place.', $this->textDomain), ' ',
+                __ ('You may choose between two export-formats - one suitable for "normal" VG-Wort Authors and another one for publishers. We recommend you to use the one for authors as less informations are lost on export.', $this->textDomain),
+              '</p><p>',
+                '<label for="wp-worthy-export-count">', __ ('Number of unused markers', $this->textDomain), ' (', sprintf (__ ('%d available', $this->textDomain), $this->getAvailableMarkersCount (true)), ')</label><br />',
+                '<input type="number" name="wp-worthy-export-count" id="wp-worthy-export-count" value="100" /><br />',
+                '<label for="wp-worthy-export-format">', __ ('Export-Format to use', $this->textDomain), '</label><br />',
+                '<select name="wp-worthy-export-format" id="wp-worthy-export-format">',
+                  '<option value="author">', __ ('Authors', $this->textDomain), '</option>',
+                  '<option value="publisher">', __ ('Publishers', $this->textDomain), '</option>',
+                '</select>',
+              '</p><p>',
+                __ ('Be aware that using this export-function will remove information from your Worthy-Database. Use it with caution!', $this->textDomain),
+              '</p><p>',
+                '<button type="submit" class="button button-primary delete" name="action" value="wp-worthy-export-csv">', __ ('Export markers and remove from database', $this->textDomain), '</button>',
               '</p>',
             '</form>',
           '</div>',
@@ -1316,6 +1375,26 @@
           else
             $this->adminStatus [] = '<div class="wp-worthy-error">' . __ ('No files were uploaded or there was an error importing all records', $this->textDomain) . '</div>';
         
+          break;
+        case 'importClaimDone':
+          if ($_REQUEST ['fileCount'] > 0) {
+            $claimedMarkers = (isset ($_REQUEST ['markerClaimed']) && (strlen ($_REQUEST ['markerClaimed']) > 0) ? explode (',', esc_html ($_REQUEST ['markerClaimed'])) : array ());
+            $failedMarkers = (isset ($_REQUEST ['markerFailed']) && (strlen ($_REQUEST ['markerFailed']) > 0) ? explode (',', esc_html ($_REQUEST ['markerFailed'])) : array ());
+            
+            $this->adminStatus [] =
+              '<div class="wp-worthy-success">' .
+                '<ul class="ul-square">' .
+                  '<li>' . sprintf (__ ('Read %d files containing %d markers', $this->textDomain), intval ($_REQUEST ['fileCount']), intval ($_REQUEST ['fileMarkerCount'])) . '</li>' .
+                (count ($claimedMarkers) == 0 ? '' :
+                  '<li>' . __ ('The following markers were personalized:', $this->textDomain) . '<ul class="ul-square"><li>' . implode ('</li><li>', $claimedMarkers) . '</li></ul></li>' .
+                  '<li>' . sprintf (__ ('%d markers were added to database', $this->textDomain), intval ($_REQUEST ['markerCreated'])) . '</li>') .
+                (count ($failedMarkers) == 0 ? '' :
+                  '<li>' . __ ('The following markers could not be personalized:', $this->textDomain) . '<ul class="ul-square"><li>' . implode ('</li><li>', $failedMarkers) . '</li></ul></li>') .
+                 '</ul>' .
+               '</div>';
+          } else
+            $this->adminStatus [] = '<div class="wp-worthy-error">' . __ ('No files were uploaded or there was an error importing all records', $this->textDomain) . '</div>';
+          
           break;
         case 'premiumImportDone':
           $this->adminStatus [] = '<div class="wp-worthy-success">' . sprintf (__ ('<strong>%d new markers</strong> were imported via Worthy Premium', $this->textDomain), (isset ($_REQUEST ['markerCount']) ? intval ($_REQUEST ['markerCount']) : 0)) . '</div>';
@@ -1700,7 +1779,7 @@
                 '<p><span class="worthy-warning">' . __ ('Title is too long', $this->textDomain) . '</span></p>') .
                 '<pre class="wp-worthy-preview">',
                   '<span class="wp-worthy-inline-title" id="wp-worthy-title-', $PostID, '">', $post->post_title, "\n", str_repeat ('-', strlen ($post->post_title)), "</span>\n",
-                  '<span class="wp-worthy-inline-content" id="wp-worthy-content-', $PostID, '">', htmlentities ($Client->reportPreview ($Session, '', apply_filters ('the_content', $post->post_content), false), ENT_COMPAT, 'UTF-8'), '</span>',
+                  '<span class="wp-worthy-inline-content" id="wp-worthy-content-', $PostID, '">', esc_html ($Client->reportPreview ($Session, '', apply_filters ('the_content', $post->post_content), false)), '</span>',
                 # '</pre><a href="#" onclick="this.nextElementSibling.style.display=(this.toggled?\'none\':\'block\'); this.innerHTML=(this.toggled ? \'Display\' : \'Hide\') + \' original content\'; this.toggled=!this.toggled; return false;">Display original content</a><pre style="border-top: 2px solid #aaa; padding-top: 20px; display: none;">',
                 #   str_replace ('<', '&lt', apply_filters ('the_content', $post->post_content)),
                 '</pre>',
@@ -2237,7 +2316,7 @@
           $this->adminStatus [] =
             '<div class="wp-worthy-error">' .
               '<p>' . __ ('There was an error while initiating the payment', $this->textDomain) . ':</p>' .
-              '<p>' . htmlentities (__ ($_REQUEST ['Error'], $this->textDomain), ENT_COMPAT, 'UTF-8') . '</p>' .
+              '<p>' . esc_html (__ ($_REQUEST ['Error'], $this->textDomain)) . '</p>' .
             '</div>';
           
           break;
@@ -2307,7 +2386,7 @@
           $this->adminStatus [] =
             '<div class="wp-worthy-error">' .
               '<p>' . __ ('Service-Error: Caught an unexpected exception. Strange!', $this->textDomain) . '</p>' .
-              '<p>Report: ' . htmlentities ($_REQUEST ['faultCode']) . ' - ' . htmlentities ($_REQUEST ['faultString']) . '</p>' .
+              '<p>Report: ' . esc_html ($_REQUEST ['faultCode']) . ' - ' . esc_html ($_REQUEST ['faultString']) . '</p>' .
             '</div>';
           
           break;
@@ -2381,6 +2460,7 @@
       global $wpdb;
       
       // Check all uploaded files
+      $userID = $this->getUserID ();
       $files = 0;
       $records = 0;
       $created = 0;
@@ -2401,7 +2481,7 @@
           $existing_query = 'SELECT public, private FROM `' . $this->getTablename ('worthy_markers') . '` WHERE public IN (';
           
           foreach ($markers as $marker)
-            $create_query .= $wpdb->prepare ('%s,', $marker ['publicMarker']);
+            $existing_query .= $wpdb->prepare ('%s,', $marker ['publicMarker']);
           
           foreach (($results = $wpdb->get_results (substr ($existing_query, 0, -1) . ')', ARRAY_N)) as $result)
             if ($result [1] != $marker ['privateMarker'])
@@ -2413,7 +2493,8 @@
           $create_query = 'INSERT IGNORE INTO `' . $this->getTablename ('worthy_markers') . '` (userid, public, private, server, url) VALUES ';
           
           foreach ($markers as $marker)
-            $create_query .= $wpdb->prepare ('(%d, %s, %s, %s, %s), ', $this->getUserID (), $marker ['publicMarker'], $marker ['privateMarker'], parse_url ($marker ['url'], PHP_URL_HOST), $marker ['url']);
+            $create_query .= $wpdb->prepare ('(%d, %s, %s, %s, %s), ', $userID, $marker ['publicMarker'], $marker ['privateMarker'],
+             parse_url ($marker ['url'], PHP_URL_HOST), $marker ['url']);
           
           $wpdb->query (substr ($create_query, 0, -2) . ' ON DUPLICATE KEY UPDATE Private=VALUES(Private)');
           $created += $wpdb->rows_affected;
@@ -2426,8 +2507,6 @@
       
       // Update statistics
       if ($records > 0) {
-        $userID = $this->getUserID ();
-        
         update_option ('worthy_markers_imported_csv', get_option ('worthy_markers_imported_csv') + $created);
         update_user_meta ($userID, 'worthy_markers_imported_csv', get_user_meta ($userID, 'worthy_markers_imported_csv', true) + $created);
       }
@@ -2451,20 +2530,127 @@
     }
     // }}}
     
-    // {{{ exportMarkers
+    // {{{ importClaimMarkers
+    /**
+     * Claim and import a set of anonymous markers
+     * 
+     * @access public
+     * @return void
+     **/
+    public function importClaimMarkers () {
+      // Check if we are subscribed to premium
+      if (!$this->isPremium ())
+        exit (wp_redirect ($this->linkSection ($this::ADMIN_SECTION_PREMIUM)));
+      
+      // Try to access the SOAP-Client
+      if (!is_object ($Client = $this->getSOAPClient ()) || !is_object ($Session = $this->getSession ()))
+        exit (wp_redirect ($this->linkSection ($this::ADMIN_SECTION_PREMIUM, array ('displayStatus' => 'noSoap'))));
+      
+      // Process all required parameters
+      $Import = (isset ($_REQUEST ['wp-worthy-claim-import']) && ($_REQUEST ['wp-worthy-claim-import'] == 1));
+      
+      // Collect all markers from upload
+      $files = 0;
+      $created = 0;
+      $allMarkers = array ();
+      
+      foreach ($_FILES as $Key=>$Info) {
+        // Try to read records from this file
+        $markers = null;
+        
+        if (is_resource ($f = @fopen ($Info ['tmp_name'], 'r'))) {
+          if ($markers = $this->parseMarkersFromFile ($f))
+            $files++;
+          
+          fclose ($f);
+        }
+        
+        if (!$markers)
+          continue;
+        
+        // Just forward to complete set
+        foreach ($markers as $marker)
+          $allMarkers [$marker ['privateMarker']] = $marker;
+        
+        // Remove all informations about this upload
+        @unlink ($Info ['tmp_name']);
+        unset ($_FILES [$Key]);
+      }
+      
+      // Try to claim all markers
+      try {
+        $Result = $Client->markersClaim ($Session, array_keys ($allMarkers));
+      } catch (SOAPFault $E) {
+        exit (wp_redirect ($this->linkSection ($this::ADMIN_SECTION_PREMIUM, array ('displayStatus' => 'soapException', 'faultCode' => $E->faultcode, 'faultString' => $E->faultstring))));
+      }
+      
+      // Process the claim-result
+      $claimedMarkers = array ();
+      $failedMarkers = array ();
+      
+      foreach ($Result as $Item)
+        if ($Item->Status == 'ok')
+          $claimedMarkers [$Item->Private] = $allMarkers [$Item->Private];
+        else
+          $failedMarkers [$Item->Private] = $allMarkers [$Item->Private];
+      
+      // Update statistics
+      if (count ($claimedMarkers) > 0) {
+        update_option ('worthy_premium_markers_claimed', get_option ('worthy_premium_markers_claimed') + count ($claimedMarkers));
+        update_user_meta ($userID, 'worthy_premium_markers_claimed', get_user_meta ($userID, 'worthy_premium_markers_claimed', true) + count ($claimedMarkers));
+      }
+      
+      // Import claimed markers
+      if ($Import && (count ($claimedMarkers) > 0)) {
+        $create_query = 'INSERT IGNORE INTO `' . $this->getTablename ('worthy_markers') . '` (userid, public, private, server, url) VALUES ';
+        $userID = $this->getUserID ();
+        
+        foreach ($claimedMarkers as $marker)
+          $create_query .= $GLOBALS ['wpdb']->prepare ('(%d, %s, %s, %s, %s), ', $userID, $marker ['publicMarker'], $marker ['privateMarker'], parse_url ($marker ['url'], PHP_URL_HOST), $marker ['url']);
+        
+        $GLOBALS ['wpdb']->query (substr ($create_query, 0, -2) . ' ON DUPLICATE KEY UPDATE Private=VALUES(Private)');
+        $created += $GLOBALS ['wpdb']->rows_affected;
+        
+        // Update statistics
+        if ($created > 0) {
+          update_option ('worthy_markers_imported_csv', get_option ('worthy_markers_imported_csv') + $created);
+          update_user_meta ($userID, 'worthy_markers_imported_csv', get_user_meta ($userID, 'worthy_markers_imported_csv', true) + $created);
+        }
+      }
+      
+      // Check if there was anything imported
+      $Parameters = array (
+        'displayStatus' => 'importClaimDone',
+      );
+      
+      if ($files > 0) {
+        $Parameters ['fileCount'] = $files;
+        $Parameters ['fileMarkerCount'] = count ($allMarkers);
+        $Parameters ['markerClaimed'] = implode (',', array_keys ($claimedMarkers));
+        $Parameters ['markerFailed'] = implode (',', array_keys ($failedMarkers));
+        $Parameters ['markerCreated'] = $created;
+      }
+      
+      wp_redirect ($this->linkSection ($this::ADMIN_SECTION_CONVERT, $Parameters));
+      
+      exit ();
+    }
+    // }}}
+    
+    // {{{ reportMarkers
     /**
      + Generate a list of markers
      * 
      * @access public
      * @return void
      **/
-    public function exportMarkers () {
+    public function reportMarkers () {
       global $wpdb;
       
       // Determine with types to export
-      $unassigned = (isset ($_REQUEST ['wp-worthy-export-unused']) && ($_REQUEST ['wp-worthy-export-unused'] == 1));
-      $assigned = (isset ($_REQUEST ['wp-worthy-export-used']) && ($_REQUEST ['wp-worthy-export-used'] == 1));
-      $title = (isset ($_REQUEST ['wp-worthy-export-title']) && ($_REQUEST ['wp-worthy-export-title'] == 1));
+      $unassigned = (isset ($_REQUEST ['wp-worthy-report-unused']) && ($_REQUEST ['wp-worthy-report-unused'] == 1));
+      $assigned = (isset ($_REQUEST ['wp-worthy-report-used']) && ($_REQUEST ['wp-worthy-report-used'] == 1));
+      $title = (isset ($_REQUEST ['wp-worthy-report-title']) && ($_REQUEST ['wp-worthy-report-title'] == 1));
       
       // Generate the query
       if ($unassigned && $assigned)
@@ -2475,14 +2661,14 @@
         $Where = ' WHERE postid IS NULL';
       
       // Process user-filter
-      if (isset ($_REQUEST ['wp-worthy-export-filter']) && ($_REQUEST ['wp-worthy-export-filter'] == 1)) {
-        if (!is_array ($_REQUEST ['wp-worthy-export-user']))
-          $_REQUEST ['wp-worthy-export-user'] = array ();
+      if (isset ($_REQUEST ['wp-worthy-report-filter']) && ($_REQUEST ['wp-worthy-report-filter'] == 1)) {
+        if (!is_array ($_REQUEST ['wp-worthy-report-user']))
+          $_REQUEST ['wp-worthy-report-user'] = array ();
         
-        foreach ($_REQUEST ['wp-worthy-export-user'] as $i=>$n)
-          $_REQUEST ['wp-worthy-export-user'][$i] = intval ($n);
+        foreach ($_REQUEST ['wp-worthy-report-user'] as $i=>$n)
+          $_REQUEST ['wp-worthy-report-user'][$i] = intval ($n);
         
-        $Where .= ' AND userid IN ("' . implode ('", "', $_REQUEST ['wp-worthy-export-user']) . '")';
+        $Where .= ' AND userid IN ("' . implode ('", "', $_REQUEST ['wp-worthy-report-user']) . '")';
       }
       
       // Process premium-filter
@@ -2490,19 +2676,19 @@
       if ($isPremium = $this->isPremium ()) {
         $Status = array ();
         
-        if (isset ($_REQUEST ['wp-worthy-export-premium-notqualified']))
+        if (isset ($_REQUEST ['wp-worthy-report-premium-notqualified']))
           $Status [] = 1;
         
-        if (isset ($_REQUEST ['wp-worthy-export-premium-partialqualified']))
+        if (isset ($_REQUEST ['wp-worthy-report-premium-partialqualified']))
           $Status [] = 2;
         
-        if (isset ($_REQUEST ['wp-worthy-export-premium-qualified']))
+        if (isset ($_REQUEST ['wp-worthy-report-premium-qualified']))
           $Status [] = 3;
         
-        if (isset ($_REQUEST ['wp-worthy-export-premium-reported']))
+        if (isset ($_REQUEST ['wp-worthy-report-premium-reported']))
           $Status [] = 4;
         
-        if (isset ($_REQUEST ['wp-worthy-export-premium-uncounted'])) {
+        if (isset ($_REQUEST ['wp-worthy-report-premium-uncounted'])) {
           $Status [] = 0;
           $Where .= ' AND (status IN ("' . implode ('","', $Status) . '") OR status IS NULL)';
         } elseif (count ($Status) > 0)
@@ -2515,7 +2701,7 @@
       
       // Generate the output
       header ('Content-Type: text/csv; charset=utf-8');
-      header ('Content-Disposition: attachment; filename="worthy-export.csv"');
+      header ('Content-Disposition: attachment; filename="wp-worthy-report-' . date ('Ymd-His') . '.csv"');
       
       static $Map = array (
         0 => 'not counted or synced',
@@ -2553,6 +2739,68 @@
           echo implode (';', $result), "\r\n";
         }
       }
+      
+      exit ();
+    }
+    // }}}
+    
+    // {{{ exportUnusedMarkers
+    /**
+     * Export and remove unused markers from our database
+     * 
+     * @access public
+     * @return void
+     **/
+    public function exportUnusedMarkers () {
+      // Retrive all parameters
+      $Count = (isset ($_REQUEST ['wp-worthy-export-count']) ? intval ($_REQUEST ['wp-worthy-export-count']) : 0);
+      $Format = (isset ($_REQUEST ['wp-worthy-export-format']) ? $_REQUEST ['wp-worthy-export-format'] : 'author');
+      $UserID = $this->getUserID (true);
+      
+      // Check if any marker should be returned
+      if ($Count == 0) {
+        header ('HTTP/1.1 204 Nothing to export');
+        header ('Status: 204 Nothing to export');
+        exit ();
+      }
+      
+      // Make sure the format is valid
+      if (($Format != 'author') && ($Format != 'publisher')) {
+        header ('HTTP/1.1 406 Invalid format selected');
+        header ('Status: 406 Invalid format selected');
+        exit ();
+      }
+      
+      // Start output
+      header ('Content-Type: text/csv; charset=utf-8');
+      header ('Content-Disposition: attachment; filename="wp-worthy-export-' . date ('Ymd-His') . '.csv"');
+      
+      if ($Format == 'publisher')
+        echo '"Öffentlicher Identifikationscode";Privater Identifikationscode', "\r\n";
+      else
+        echo ';VG WORT', "\r\n", ';Zählmarken', "\r\n", ';', "\r\n", ';Die unten angegebenen Zählmarken wurden am ', date ('d.m.Y'), ' um ', date ('H:i'), ' aus WP-Worthy exportiert.', "\r\n", ';', "\r\n";
+      
+      // Retrive all markers
+      $markers = $GLOBALS ['wpdb']->get_results ('SELECT id, public, private, url FROM `' . $this->getTablename ('worthy_markers') . '` WHERE postid IS NULL AND userid=' . intval ($UserID) . ' LIMIT ' . $Count);
+      
+      // Output markers first
+      $ids = array ();
+      $c = 0;
+      
+      foreach ($markers as $marker) {
+        $ids [] = intval ($marker->id);
+        
+        if ($Format == 'publisher')
+          echo $marker->public, ';', $marker->private, "\r\n";
+        else
+          echo
+            ';Zählmarke für HTML Texte;Zählmarke für PDF Dokumente', "\r\n",
+            ++$c, ';<img src="', $marker->url, '" width="1" height="1" alt="">;<a href="', $marker->url, '?l=PDF-ADRESSE">LINK-NAME</a>', "\r\n",
+            ';Privater Identifikationscode:;', $marker->private, "\r\n\r\n";
+      }
+      
+      // Remove markers from database
+      $GLOBALS ['wpdb']->query ('DELETE FROM `' . $this->getTablename ('worthy_markers') . '` WHERE id IN ("' . implode ('","', $ids) . '")');
       
       exit ();
     }

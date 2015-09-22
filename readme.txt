@@ -3,8 +3,8 @@ Contributors: tiggerswelt
 Donate link: https://wp-worthy.de/
 Tags: VG-Wort, T.O.M., METIS, Zählmarke, Zählpixel, Geld, VGW, Verwertungsgesellschaft WORT
 Requires at least: 3.7
-Tested up to: 4.3
-Stable tag: 1.1.4
+Tested up to: 4.3.1
+Stable tag: 1.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -144,8 +144,17 @@ Um Worthy noch besser zu machen, freuen wir uns über Dein Feedback. Dieses
 Changelog soll den Werdegang von Worthy abbilden, auch wenn aktuell das
 meiste bereits "im Verborgenen" geschehen ist.
 
+= 1.2 =
+* Veröffentlicht: 22. September 2015 gegen 15:00
+* Premium: Anonyme Zählmarken können personalisiert und importiert werden
+* Ungenutzte Zählmarken können nun exportiert werden um sie an anderer
+Stelle zu nutzen
+* Java-Script-Erweiterung für Beitrag-Editor wurde verbessert
+* Bugfix: Beitragsrevisionen erhalten keinen Zählpixel mehr
+* Bugfix: CSS-Fehlerkorrektur für unser SVG-Logo
+
 = 1.1.4 =
-* Veröffentlicht: 20 August 2015 gegen 23:30
+* Veröffentlicht: 20. August 2015 gegen 23:30
 * Beschriftung in der Toolbar angepasst
 
 = 1.1.3 =

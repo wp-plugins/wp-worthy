@@ -75,9 +75,9 @@
     }
   }
   
-  $(document).bind ('wpcountwords', function (e, text) {
-    worthy.counter (text);
-  });
+  //$(document).bind ('wpcountwords', function (e, text) {
+  //   worthy.counter (text);
+  //});
   
   $(document).ready (function () {
     worthy.auto_assign = ($('#worthy_embed').attr ('data-wp-worthy-auto') == 1);
@@ -176,5 +176,8 @@
     
     if ($('th#cb input[type=checkbox]').prop ('checked'))
       $('th.check-column input[type=checkbox]').prop ('checked', true);
+    
+    $('#content').on ('input keyup', function () { worthy.counter (this.value); });
+    $(document).on ('tinymce-editor-init', function (ev, ed) { if (ed.id=='content') ed.on ('nodechange keyup', function () { tinyMCE.triggerSave (); worthy.counter ($('#content').val ()); }); });
   });
 }(jQuery));

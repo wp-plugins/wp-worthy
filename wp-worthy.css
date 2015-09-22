@@ -331,3 +331,8 @@ ul#worthy-marker-status ul {
 #wp-worthy .stuffbox h3 {
   padding: 0;
 }
+
+.toplevel_page_wp_worthy-overview .wp-menu-image img {
+  max-width: 20px;
+  max-height: 20px;
+}
